@@ -8,6 +8,7 @@ const { OpenAI } = require('openai');
 // Initialize Express app
 const app = express();
 const PORT = process.env.PORT || 5000;
+const HOST = '0.0.0.0'; // CRITICAL for Railway deployment
 
 // Configure CORS to allow frontend connection
 app.use(cors({
@@ -76,8 +77,7 @@ const premiumTemplates = {
     variables: ['style', 'subject', 'setting', 'lighting', 'composition', 'mood', 'aiModel']
   },
   
-  // Add the rest of your templates here...
-  // Continue with your existing template database
+  // Add more templates as needed...
 };
 
 // AI Service (simplified for deployment)
@@ -121,7 +121,27 @@ const aiService = {
   }
 };
 
-// API Routes
+// ==================== API ROUTES ====================
+
+// Root route - Essential for Railway health checks
+app.get('/', (req, res) => {
+  res.json({
+    service: 'Prompt Genius Backend API',
+    status: 'running',
+    timestamp: new Date().toISOString(),
+    version: '1.0.0',
+    endpoints: {
+      health: '/api/health',
+      templates: '/api/templates',
+      generate: '/api/generate/premium',
+      aiGenerate: '/api/ai/generate',
+      complete: '/api/generate/complete'
+    },
+    documentation: 'Use /api/health to check service status'
+  });
+});
+
+// Health check endpoint
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'healthy',
@@ -129,10 +149,17 @@ app.get('/api/health', (req, res) => {
     services: {
       openai: !!process.env.OPENAI_API_KEY,
       templates: Object.keys(premiumTemplates).length
+    },
+    deployment: {
+      node: process.version,
+      environment: process.env.NODE_ENV || 'development',
+      port: PORT,
+      host: HOST
     }
   });
 });
 
+// Get all templates
 app.get('/api/templates', (req, res) => {
   const templates = Object.entries(premiumTemplates).map(([id, template]) => ({
     id,
@@ -147,6 +174,7 @@ app.get('/api/templates', (req, res) => {
   });
 });
 
+// Generate prompt from template
 app.post('/api/generate/premium', (req, res) => {
   try {
     const { templateId, variables } = req.body;
@@ -191,6 +219,7 @@ app.post('/api/generate/premium', (req, res) => {
   }
 });
 
+// Generate AI response
 app.post('/api/ai/generate', async (req, res) => {
   try {
     const { prompt, provider = 'openai' } = req.body;
@@ -229,9 +258,18 @@ app.post('/api/ai/generate', async (req, res) => {
   }
 });
 
+// Complete workflow: template + AI generation
 app.post('/api/generate/complete', async (req, res) => {
   try {
     const { templateId, variables, provider = 'openai' } = req.body;
+    
+    // Validate template
+    if (!templateId || !premiumTemplates[templateId]) {
+      return res.status(400).json({
+        success: false,
+        error: 'Template not found'
+      });
+    }
     
     // Generate prompt
     const template = premiumTemplates[templateId];
@@ -277,9 +315,49 @@ app.post('/api/generate/complete', async (req, res) => {
   }
 });
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
+// 404 handler for undefined routes
+app.use('*', (req, res) => {
+  res.status(404).json({
+    success: false,
+    error: 'Endpoint not found',
+    requestedUrl: req.originalUrl,
+    availableEndpoints: ['/', '/api/health', '/api/templates', '/api/generate/premium', '/api/ai/generate', '/api/generate/complete']
+  });
+});
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error('Server Error:', err);
+  res.status(500).json({
+    success: false,
+    error: 'Internal server error',
+    message: process.env.NODE_ENV === 'development' ? err.message : undefined
+  });
+});
+
+// ==================== START SERVER ====================
+// CRITICAL: Use HOST = '0.0.0.0' for Railway deployment
+app.listen(PORT, HOST, () => {
+  console.log(`🚀 Server running on http://${HOST}:${PORT}`);
   console.log(`📁 Templates loaded: ${Object.keys(premiumTemplates).length}`);
   console.log(`🔑 OpenAI Status: ${process.env.OPENAI_API_KEY ? 'Configured' : 'Missing API Key'}`);
+  console.log(`🌐 Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`📊 Available endpoints:`);
+  console.log(`   • GET  /              - Service info`);
+  console.log(`   • GET  /api/health    - Health check`);
+  console.log(`   • GET  /api/templates - List all templates`);
+  console.log(`   • POST /api/generate/premium - Generate prompt`);
+  console.log(`   • POST /api/ai/generate - AI generation`);
+  console.log(`   • POST /api/generate/complete - Complete workflow`);
+});
+
+// Handle graceful shutdown
+process.on('SIGTERM', () => {
+  console.log('SIGTERM received. Shutting down gracefully...');
+  process.exit(0);
+});
+
+process.on('SIGINT', () => {
+  console.log('SIGINT received. Shutting down gracefully...');
+  process.exit(0);
 });
