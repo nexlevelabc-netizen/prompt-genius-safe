@@ -6,6 +6,16 @@ export default defineConfig({
   root: '.',
   build: {
     outDir: 'dist',
-    emptyOutDir: true
+    emptyOutDir: true,
+    sourcemap: true
+  },
+  server: {
+    port: 5173,
+    host: true
+  },
+  // This ensures environment variables are properly loaded
+  envDir: '.',
+  define: {
+    'process.env': {}
   }
 })
