@@ -4,7 +4,11 @@ import axios from 'axios';
 // Use your actual backend Railway URL from .env file
 const API_URL = import.meta.env.VITE_API_URL || 'https://patient-nurturing-production-903c.up.railway.app';
 
-console.log('🔗 Backend API URL:', API_URL);
+// Debug logging
+console.log('=== API Configuration Debug ===');
+console.log('VITE_API_URL from env:', import.meta.env.VITE_API_URL);
+console.log('Full backend URL:', API_URL);
+console.log('=============================');
 
 const api = axios.create({
   baseURL: API_URL,
@@ -33,7 +37,9 @@ api.interceptors.response.use(
     return response;
   },
   (error) => {
-    console.error('❌ API Response Error:', error);
+    console.error('❌ API Response Error Full Details:', error);
+    console.error('Error config:', error.config);
+    console.error('Error URL attempted:', error.config?.baseURL + error.config?.url);
     
     // Better error messages
     let userMessage = 'Network error. Please check your connection.';
@@ -77,6 +83,10 @@ export const templateAPI = {
   // Generate AI content
   generateAI: (prompt, provider = 'openai') => 
     api.post('/api/ai/generate', { prompt, provider }),
+  
+  // Compare AI providers
+  compareAI: (prompt) => 
+    api.post('/api/ai/compare', { prompt }),
   
   // Complete workflow
   completeWorkflow: (templateId, variables, provider = 'openai') => 
