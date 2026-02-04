@@ -113,27 +113,19 @@ const aiService = {
 
 // ==================== API ROUTES ====================
 
-// Railway health check (CRITICAL)
-app.get('/railway-health', (req, res) => {
-  res.status(200).json({
-    status: 'ok',
-    timestamp: new Date().toISOString(),
-    service: 'patient-nurturing'
-  });
-});
-
 // Simple UP check
 app.get('/up', (req, res) => {
   res.status(200).send('UP');
 });
 
-// Root route
+// Root route - ALSO USED AS HEALTH CHECK BY RAILWAY
 app.get('/', (req, res) => {
   res.json({
     service: 'Prompt Genius Backend API',
     status: 'running',
     timestamp: new Date().toISOString(),
     version: '1.0.0',
+    environment: process.env.NODE_ENV || 'development',
     endpoints: {
       health: '/api/health',
       templates: '/api/templates',
@@ -144,7 +136,17 @@ app.get('/', (req, res) => {
   });
 });
 
-// Health check
+// Health check (for Railway health check endpoint)
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    memory: process.memoryUsage()
+  });
+});
+
+// Health check API endpoint
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'healthy',
@@ -331,5 +333,6 @@ app.listen(PORT, HOST, () => {
   console.log(`🚀 Server running on http://${HOST}:${PORT}`);
   console.log(`📁 Templates loaded: ${Object.keys(premiumTemplates).length}`);
   console.log(`🔑 OpenAI Status: ${process.env.OPENAI_API_KEY ? 'Configured' : 'Missing API Key'}`);
+  console.log(`🌐 Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`⚡ PID: ${process.pid}`);
 });
-
