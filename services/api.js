@@ -2,7 +2,7 @@
 import axios from 'axios';
 
 // IMPORTANT: Use your actual backend Railway URL
-// Replace this with your backend URL from Railway dashboard
+// This should match the URL you see in your backend service on Railway
 const API_URL = import.meta.env.VITE_API_URL || 'https://patient-nurturing-production.up.railway.app';
 
 console.log('Backend API URL:', API_URL);
@@ -18,7 +18,7 @@ const api = axios.create({
 // Request interceptor for logging
 api.interceptors.request.use(
   (config) => {
-    console.log(`API Request: ${config.method.toUpperCase()} ${config.url}`);
+    console.log(`API Request: ${config.method.toUpperCase()} ${config.baseURL}${config.url}`);
     return config;
   },
   (error) => {
@@ -36,23 +36,21 @@ api.interceptors.response.use(
   (error) => {
     console.error('API Response Error:', error);
     
-    if (error.response) {
-      // Server responded with error
-      console.error('Error Details:', error.response.data);
-    } else if (error.request) {
-      // Request made but no response
-      console.error('No response received');
-    } else {
-      // Request setup error
-      console.error('Request setup error:', error.message);
-    }
+    // Don't log the full error in production, just show user-friendly message
+    const userFriendlyError = {
+      message: 'Unable to connect to AI service',
+      details: 'Please check your internet connection and try again.'
+    };
     
-    return Promise.reject(error);
+    return Promise.reject(userFriendlyError);
   }
 );
 
 // Template API calls
 export const templateAPI = {
+  // Health check
+  healthCheck: () => api.get('/api/health'),
+  
   // Get all templates
   getTemplates: () => api.get('/api/templates'),
   
@@ -71,9 +69,6 @@ export const templateAPI = {
   // Complete workflow
   completeWorkflow: (templateId, variables, provider = 'openai') => 
     api.post('/api/generate/complete', { templateId, variables, provider }),
-  
-  // Health check
-  healthCheck: () => api.get('/api/health'),
 };
 
 export default api;
