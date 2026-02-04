@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { aiService } from './services/aiService.js';
+import { templateAPI } from './services/api.js';
 import { 
   Sparkles, 
   Code2, 
