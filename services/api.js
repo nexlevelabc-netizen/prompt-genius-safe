@@ -1,8 +1,11 @@
 // src/services/api.js
 import axios from 'axios';
 
-// Use environment variable or default to localhost
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+// IMPORTANT: Use your actual backend Railway URL
+// Replace this with your backend URL from Railway dashboard
+const API_URL = import.meta.env.VITE_API_URL || 'https://patient-nurturing-production.up.railway.app';
+
+console.log('Backend API URL:', API_URL);
 
 const api = axios.create({
   baseURL: API_URL,
