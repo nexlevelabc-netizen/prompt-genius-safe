@@ -20,7 +20,6 @@ app.use(express.json());
 
 // MEGA TEMPLATE DATABASE WITH 20+ CATEGORIES
 const premiumTemplates = {
-  // HEALTH & WELLNESS CATEGORY
   'health-article': {
     name: 'Health Article Writer',
     description: 'Create informative health and wellness articles',
@@ -29,7 +28,6 @@ const premiumTemplates = {
     template: "Write a comprehensive 300-word health article about {topic} for {audience}. Focus on {focus}. Include {sections}. Tone: {tone}. Make it contextual and practical.",
     variables: ['topic', 'audience', 'focus', 'sections', 'tone']
   },
-  
   'medical-advice': {
     name: 'Medical Advice Assistant',
     description: 'Generate medical advice and explanations',
@@ -38,7 +36,6 @@ const premiumTemplates = {
     template: "Provide medical advice for {condition}. Include symptoms, prevention, and treatment options for {demographic}. Tone: {tone}. Important: Add disclaimer.",
     variables: ['condition', 'demographic', 'tone']
   },
-  
   'fitness-routine': {
     name: 'Fitness Routine Planner',
     description: 'Create personalized fitness routines',
@@ -47,8 +44,6 @@ const premiumTemplates = {
     template: "Design a {duration} fitness routine for {fitnessLevel} focusing on {goals}. Include warmup, exercises, reps, and cooldown. Equipment: {equipment}. Tone: {tone}.",
     variables: ['duration', 'fitnessLevel', 'goals', 'equipment', 'tone']
   },
-  
-  // RELATIONSHIP & SOCIAL CATEGORY
   'dating-profile': {
     name: 'Dating Profile Writer',
     description: 'Craft compelling dating profiles',
@@ -57,7 +52,6 @@ const premiumTemplates = {
     template: "Write a {platform} dating profile for a {gender} {age} interested in {interests}. Personality: {personality}. Looking for: {lookingFor}. Tone: {tone}.",
     variables: ['platform', 'gender', 'age', 'interests', 'personality', 'lookingFor', 'tone']
   },
-  
   'conflict-resolution': {
     name: 'Conflict Resolution Guide',
     description: 'Generate scripts for relationship conflicts',
@@ -66,8 +60,6 @@ const premiumTemplates = {
     template: "Create a conflict resolution script for {situation} between {parties}. Key issues: {issues}. Desired outcome: {outcome}. Tone: {tone}.",
     variables: ['situation', 'parties', 'issues', 'outcome', 'tone']
   },
-  
-  // IMAGE GENERATION CATEGORY
   'ai-image-prompt': {
     name: 'AI Image Prompt Generator',
     description: 'Create detailed prompts for AI image generation',
@@ -121,7 +113,21 @@ const aiService = {
 
 // ==================== API ROUTES ====================
 
-// Root route - Essential for Railway
+// Railway health check (CRITICAL)
+app.get('/railway-health', (req, res) => {
+  res.status(200).json({
+    status: 'ok',
+    timestamp: new Date().toISOString(),
+    service: 'patient-nurturing'
+  });
+});
+
+// Simple UP check
+app.get('/up', (req, res) => {
+  res.status(200).send('UP');
+});
+
+// Root route
 app.get('/', (req, res) => {
   res.json({
     service: 'Prompt Genius Backend API',
@@ -321,7 +327,6 @@ app.use((err, req, res, next) => {
 });
 
 // ==================== START SERVER ====================
-// CRITICAL: Use HOST = '0.0.0.0' for Railway
 app.listen(PORT, HOST, () => {
   console.log(`🚀 Server running on http://${HOST}:${PORT}`);
   console.log(`📁 Templates loaded: ${Object.keys(premiumTemplates).length}`);
