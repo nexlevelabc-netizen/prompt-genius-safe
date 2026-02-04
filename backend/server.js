@@ -14,9 +14,10 @@ const HOST = '0.0.0.0'; // CRITICAL for Railway deployment
 app.use(cors({
   origin: [
     'https://prompt-genius-safe-production.up.railway.app', // Your frontend Railway URL
-    'https://patient-nurturing-production-903c.up.railway.app', // Your backend URL (for testing)
+    'https://patient-nurturing-production-903c.up.railway.app', // Your backend URL
     'http://localhost:5173', // Local development
     'http://localhost:3000', // Alternative local port
+    'http://localhost:4173', // Vite preview port
     process.env.FRONTEND_URL // Environment variable for flexibility
   ].filter(Boolean),
   credentials: true,
@@ -168,7 +169,8 @@ app.get('/api/health', (req, res) => {
       'https://prompt-genius-safe-production.up.railway.app',
       'https://patient-nurturing-production-903c.up.railway.app',
       'http://localhost:5173',
-      'http://localhost:3000'
+      'http://localhost:3000',
+      'http://localhost:4173'
     ]
   });
 });
@@ -350,9 +352,9 @@ app.listen(PORT, HOST, () => {
   console.log(`🔑 OpenAI Status: ${process.env.OPENAI_API_KEY ? 'Configured' : 'Missing API Key'}`);
   console.log(`🔍 Railway Health Check: http://${HOST}:${PORT}/railway-health`);
   console.log(`🌐 CORS Allowed Origins:`);
-  console.log(`   - https://prompt-genius-safe-production.up.railway.app`);
-  console.log(`   - https://patient-nurturing-production-903c.up.railway.app`);
-  console.log(`   - http://localhost:5173`);
-  console.log(`   - http://localhost:3000`);
+  console.log(`   - https://prompt-genius-safe-production.up.railway.app (Frontend)`);
+  console.log(`   - https://patient-nurturing-production-903c.up.railway.app (Backend)`);
+  console.log(`   - http://localhost:5173 (Vite Dev)`);
+  console.log(`   - http://localhost:4173 (Vite Preview)`);
   console.log(`   - ${process.env.FRONTEND_URL || 'Environment variable not set'}`);
 });
