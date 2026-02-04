@@ -11,14 +11,14 @@ const PORT = process.env.PORT || 8080;
 const HOST = '0.0.0.0'; // CRITICAL for Railway deployment
 
 // Configure CORS to allow frontend connection
-// UPDATED: Added your actual frontend Railway URL
 app.use(cors({
   origin: [
     'https://prompt-genius-safe-production.up.railway.app', // Your frontend Railway URL
+    'https://patient-nurturing-production-903c.up.railway.app', // Your backend URL (for testing)
     'http://localhost:5173', // Local development
     'http://localhost:3000', // Alternative local port
     process.env.FRONTEND_URL // Environment variable for flexibility
-  ].filter(Boolean), // Remove any undefined values
+  ].filter(Boolean),
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -166,6 +166,7 @@ app.get('/api/health', (req, res) => {
     },
     cors_allowed_origins: [
       'https://prompt-genius-safe-production.up.railway.app',
+      'https://patient-nurturing-production-903c.up.railway.app',
       'http://localhost:5173',
       'http://localhost:3000'
     ]
@@ -350,6 +351,7 @@ app.listen(PORT, HOST, () => {
   console.log(`🔍 Railway Health Check: http://${HOST}:${PORT}/railway-health`);
   console.log(`🌐 CORS Allowed Origins:`);
   console.log(`   - https://prompt-genius-safe-production.up.railway.app`);
+  console.log(`   - https://patient-nurturing-production-903c.up.railway.app`);
   console.log(`   - http://localhost:5173`);
   console.log(`   - http://localhost:3000`);
   console.log(`   - ${process.env.FRONTEND_URL || 'Environment variable not set'}`);
