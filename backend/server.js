@@ -11,10 +11,21 @@ const PORT = process.env.PORT || 8080;
 const HOST = '0.0.0.0'; // CRITICAL for Railway deployment
 
 // Configure CORS to allow frontend connection
+// UPDATED: Added your actual frontend Railway URL
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
-  credentials: true
+  origin: [
+    'https://prompt-genius-safe-production.up.railway.app', // Your frontend Railway URL
+    'http://localhost:5173', // Local development
+    'http://localhost:3000', // Alternative local port
+    process.env.FRONTEND_URL // Environment variable for flexibility
+  ].filter(Boolean), // Remove any undefined values
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
+
+// Handle preflight requests
+app.options('*', cors());
 
 app.use(express.json());
 
@@ -130,6 +141,10 @@ app.get('/', (req, res) => {
     status: 'running',
     timestamp: new Date().toISOString(),
     version: '1.0.0',
+    frontend_allowed: [
+      'https://prompt-genius-safe-production.up.railway.app',
+      'http://localhost:5173'
+    ],
     endpoints: {
       health: '/api/health',
       templates: '/api/templates',
@@ -148,7 +163,12 @@ app.get('/api/health', (req, res) => {
     services: {
       openai: !!process.env.OPENAI_API_KEY,
       templates: Object.keys(premiumTemplates).length
-    }
+    },
+    cors_allowed_origins: [
+      'https://prompt-genius-safe-production.up.railway.app',
+      'http://localhost:5173',
+      'http://localhost:3000'
+    ]
   });
 });
 
@@ -328,4 +348,9 @@ app.listen(PORT, HOST, () => {
   console.log(`📁 Templates loaded: ${Object.keys(premiumTemplates).length}`);
   console.log(`🔑 OpenAI Status: ${process.env.OPENAI_API_KEY ? 'Configured' : 'Missing API Key'}`);
   console.log(`🔍 Railway Health Check: http://${HOST}:${PORT}/railway-health`);
+  console.log(`🌐 CORS Allowed Origins:`);
+  console.log(`   - https://prompt-genius-safe-production.up.railway.app`);
+  console.log(`   - http://localhost:5173`);
+  console.log(`   - http://localhost:3000`);
+  console.log(`   - ${process.env.FRONTEND_URL || 'Environment variable not set'}`);
 });
