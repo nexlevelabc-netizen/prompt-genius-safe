@@ -6,7 +6,7 @@ import {
   PenTool, 
   TrendingUp, 
   Zap, 
-  Copy, 
+  Copy,
   Check,
   Star,
   Layers,
