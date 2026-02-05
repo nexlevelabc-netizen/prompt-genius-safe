@@ -1027,6 +1027,7 @@ select option:hover {
   gap: 0.5rem;
 }
 
+/* Premium Input Field Styling - Clean & Professional */
 .input-field {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid var(--glass-border);
@@ -1035,52 +1036,55 @@ select option:hover {
   color: var(--light);
   font-size: 0.95rem;
   transition: all 0.3s;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 400;
+  letter-spacing: 0.2px;
 }
 
 .input-field:focus {
   outline: none;
   border-color: var(--primary);
   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+  background: rgba(255, 255, 255, 0.08);
 }
 
-/* Dropdown Fixes - ENHANCED */
+/* Premium Dropdown Styling - Clean & Consistent */
 select.input-field {
   color: var(--light);
-  background-color: rgba(255, 255, 255, 0.05);
+  background-color: rgba(15, 23, 42, 0.9) !important;
   cursor: pointer;
-}
-
-select.input-field option {
-  background-color: var(--darker);
-  color: var(--light);
-  padding: 12px;
-}
-
-/* Ensure selected option is visible */
-select.input-field option:checked,
-select.input-field option:focus,
-select.input-field option:hover {
-  background-color: var(--primary) !important;
-  color: white !important;
-}
-
-/* Dropdown arrow styling */
-select.input-field {
+  font-weight: 500;
   appearance: none;
   background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23f9fafb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
   background-repeat: no-repeat;
   background-position: right 1rem center;
   background-size: 1rem;
   padding-right: 2.5rem;
+  border: 1px solid rgba(99, 102, 241, 0.3) !important;
+  transition: all 0.3s ease !important;
 }
 
 select.input-field:hover {
-  border-color: var(--primary);
+  border-color: rgba(99, 102, 241, 0.6) !important;
 }
 
 select.input-field:focus {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+  border-color: #6366f1 !important;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2) !important;
+}
+
+select.input-field option {
+  background-color: var(--darker) !important;
+  color: var(--light) !important;
+  padding: 12px;
+  font-size: 0.9rem;
+}
+
+select.input-field option:checked,
+select.input-field option:focus,
+select.input-field option:hover {
+  background-color: var(--primary) !important;
+  color: white !important;
 }
 
 /* Browser-specific fixes */
@@ -1128,13 +1132,13 @@ select.input-field:-moz-focusring {
   margin-top: 0.5rem;
 }
 
-/* Hint text */
+/* Hint text - Clean and minimal */
 .hint {
   font-size: 0.75rem;
   color: var(--gray);
-  font-style: italic;
-  margin-left: 0.5rem;
   font-weight: normal;
+  margin-left: 0.5rem;
+  font-style: normal;
 }
 
 /* Action Buttons */
@@ -1967,6 +1971,34 @@ select {
 
 select::-ms-expand {
   display: none;
+}
+
+/* Remove all bullet points and hyphens from lists */
+.expert-options ul,
+.suggestions ul,
+.ai-unordered-list,
+.ai-ordered-list {
+  list-style: none;
+  padding-left: 0;
+}
+
+/* Clean spacing for premium feel */
+.section-content {
+  padding: 1.75rem;
+}
+
+.input-grid {
+  gap: 1.75rem;
+}
+
+.input-group {
+  gap: 0.6rem;
+}
+
+/* Premium font styling */
+body, input, select, textarea, button {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  letter-spacing: 0.2px;
 }
 
 /* Responsive */
