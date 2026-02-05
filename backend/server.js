@@ -30,6 +30,54 @@ app.options('*', cors());
 
 app.use(express.json());
 
+// ==================== CLEANUP FUNCTION FOR PROMPTS ====================
+
+function cleanGeneratedPrompt(prompt) {
+  if (!prompt || typeof prompt !== 'string') return prompt;
+  
+  // Remove all placeholder markers and instructional text
+  return prompt
+    // Remove [user input required] and similar placeholders
+    .replace(/\[user input required\]/gi, '')
+    .replace(/\[input needed\]/gi, '')
+    .replace(/\[enter here\]/gi, '')
+    .replace(/\[specific\]/gi, '')
+    .replace(/\[detail\]/gi, '')
+    .replace(/\[be specific\]/gi, '')
+    .replace(/\[provide details\]/gi, '')
+    .replace(/\[add specifics\]/gi, '')
+    .replace(/\[insert here\]/gi, '')
+    .replace(/\[your input\]/gi, '')
+    
+    // Remove instructional text in parentheses
+    .replace(/\(be specific for.*?\)/gi, '')
+    .replace(/\(enter.*?\)/gi, '')
+    .replace(/\(select.*?\)/gi, '')
+    .replace(/\(choose.*?\)/gi, '')
+    .replace(/\(describe.*?\)/gi, '')
+    .replace(/\(list.*?\)/gi, '')
+    .replace(/\(provide.*?\)/gi, '')
+    .replace(/\(include.*?\)/gi, '')
+    
+    // Remove standalone instructional lines
+    .replace(/^Enter presentation.*?\n/gim, '')
+    .replace(/^Enter diagnosis_considerations.*?\n/gim, '')
+    .replace(/^Enter treatment_approach.*?\n/gim, '')
+    .replace(/^Enter monitoring.*?\n/gim, '')
+    .replace(/^Enter red_flags.*?\n/gim, '')
+    .replace(/^Enter.*?\n/gim, '')
+    
+    // Clean up empty template variables {variable} (already replaced by user input)
+    .replace(/\{[^}]*?\}/g, '') // Remove any remaining empty {}
+    
+    // Clean up extra spaces and line breaks
+    .replace(/\s{2,}/g, ' ')
+    .replace(/\n\s*\n\s*\n/g, '\n\n')
+    .replace(/^\s+|\s+$/g, '') // trim
+    .replace(/\n\s*$/g, '') // remove trailing newlines
+    .replace(/^\s*\n/g, ''); // remove leading empty lines
+}
+
 // ==================== EXPERT TEMPLATE DATABASE - 50+ PREMIUM TEMPLATES ====================
 
 const premiumTemplates = {
@@ -1083,11 +1131,14 @@ app.post('/api/generate/premium', (req, res) => {
     });
     
     // Remove any remaining template variables
-    prompt = prompt.replace(/{[^}]+}/g, '[user input required]');
+    prompt = prompt.replace(/{[^}]+}/g, '');
+    
+    // ✅ Clean the prompt to remove placeholder text and instructional markers
+    const cleanedPrompt = cleanGeneratedPrompt(prompt);
     
     res.json({
       success: true,
-      prompt,
+      prompt: cleanedPrompt, // ✅ Return cleaned prompt
       template: {
         id: templateId,
         name: template.name,
@@ -1096,11 +1147,11 @@ app.post('/api/generate/premium', (req, res) => {
         expert_level: 'Professional'
       },
       metadata: {
-        wordCount: prompt.split(/\s+/).length,
+        wordCount: cleanedPrompt.split(/\s+/).length,
         variablesUsed: Object.keys(variables || {}).length,
         timestamp: new Date().toISOString(),
         quality: 'Expert Grade',
-        complexity: prompt.length > 500 ? 'High' : 'Medium'
+        complexity: cleanedPrompt.length > 500 ? 'High' : 'Medium'
       }
     });
     
@@ -1191,14 +1242,17 @@ app.post('/api/generate/complete', async (req, res) => {
     });
     
     // Remove any remaining template variables
-    prompt = prompt.replace(/{[^}]+}/g, '[user input required]');
+    prompt = prompt.replace(/{[^}]+}/g, '');
+    
+    // ✅ Clean the prompt to remove placeholder text and instructional markers
+    const cleanedPrompt = cleanGeneratedPrompt(prompt);
     
     // Enhance AI prompt based on category
-    let aiPrompt = prompt;
+    let aiPrompt = cleanedPrompt;
     if (template.category.includes('Image Generation')) {
       aiPrompt = `Generate a professional AI image generation prompt with these specifications:
 
-${prompt}
+${cleanedPrompt}
 
 Requirements for Image Generation Prompt:
 1. Include specific AI model parameters (--ar, --v, --style, --chaos, etc.)
@@ -1211,7 +1265,7 @@ Professional AI Image Prompt:`;
     } else if (template.category.includes('Health')) {
       aiPrompt = `As a medical professional, provide expert guidance on:
 
-${prompt}
+${cleanedPrompt}
 
 Professional Requirements:
 1. Evidence-based recommendations
@@ -1228,7 +1282,7 @@ Expert Medical Response:`;
     if (aiResult.success) {
       res.json({
         success: true,
-        prompt,
+        prompt: cleanedPrompt, // ✅ Return cleaned prompt
         aiResponse: {
           content: aiResult.content,
           provider: aiResult.provider,
@@ -1245,7 +1299,7 @@ Expert Medical Response:`;
           expert_level: 'Professional'
         },
         metadata: {
-          template_complexity: prompt.length > 500 ? 'High' : 'Medium',
+          template_complexity: cleanedPrompt.length > 500 ? 'High' : 'Medium',
           ai_enhancement: 'Category-specific optimization applied',
           professional_grade: true
         }
@@ -1310,4 +1364,5 @@ app.listen(PORT, HOST, () => {
   console.log(`   - Industry-standard prompts`);
   console.log(`   - Category-specific optimizations`);
   console.log(`   - Professional AI enhancements`);
+  console.log(`🧹 Prompt Cleanup: Enabled - Removing placeholder markers from outputs`);
 });
