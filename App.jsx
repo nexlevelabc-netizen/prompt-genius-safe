@@ -6,7 +6,7 @@ import {
   PenTool, 
   TrendingUp, 
   Zap, 
-  Copy,
+  Copy, 
   Check,
   Star,
   Layers,
@@ -67,6 +67,9 @@ import {
   Info
 } from 'lucide-react';
 import './App.css';
+
+// Import dropdown options
+import { dropdownOptions } from './constants/dropdownOptions.js';
 
 function App() {
   // Enhanced Google Fonts with premium options
@@ -217,6 +220,16 @@ function App() {
       'lighting': 'Lighting',
       'mood': 'Mood/Atmosphere',
       'ai_model': 'AI Platform / Model',
+      'resolution': 'Resolution / Quality',
+      
+      // Video Generation
+      'video_subject': 'Video Subject',
+      'video_style': 'Video Style',
+      'video_length': 'Video Length',
+      'aspect_ratio': 'Aspect Ratio',
+      'frame_rate': 'Frame Rate',
+      'video_resolution': 'Video Resolution',
+      'video_ai_model': 'Video AI Platform',
       
       // General/Common
       'topic': 'Topic',
@@ -251,14 +264,12 @@ function App() {
     const placeholderMap = {
       // Medical/Health
       'presentation': 'Describe how the condition looks/feels. Be detailed.',
-      'diagnosis_considerations': 'List possible conditions to analyze. e.g., "gout, infection, fracture"',
-      'treatment_approach': 'Describe the recommended care steps. e.g., "rest, medication, therapy"',
+      'diagnosis_considerations': 'List possible conditions to analyze.',
+      'treatment_approach': 'Describe the recommended care steps.',
       'monitoring': 'List signs of improvement or worsening to track.',
       'red_flags': 'List symptoms that require immediate attention.',
-      'complexity': 'Choose: Beginner | Intermediate | Advanced',
       'condition': 'e.g., "swelling in left ankle"',
       'demographic': 'e.g., "45-year-old male"',
-      'tone': 'Choose tone for the output...',
       
       // Business/Marketing
       'target_audience': 'Describe your ideal customer or audience.',
@@ -276,24 +287,30 @@ function App() {
       'writing_style': 'Describe the writing approach.',
       
       // Image Generation
-      'subject': 'What is the main focus?',
-      'style': 'e.g., "photorealistic, cartoon, oil painting"',
-      'color_palette': 'e.g., "warm tones, cool blues, vibrant"',
+      'subject': 'What is the main focus? Be specific for best results.',
+      'style': 'Select artistic style...',
+      'color_palette': 'Select color palette...',
       'composition': 'e.g., "close-up, wide shot, portrait"',
-      'lighting': 'e.g., "dramatic, soft, natural"',
+      'lighting': 'Select lighting style...',
       'mood': 'e.g., "mysterious, joyful, peaceful"',
-      'ai_model': 'Choose AI platform: Midjourney | DALL-E 3 | Stable Diffusion | Leonardo.ai',
+      'ai_model': 'Select AI platform...',
+      'resolution': 'Select resolution quality...',
+      
+      // Video Generation
+      'video_subject': 'Describe the scene or action for your video.',
+      'video_style': 'Select video style...',
+      'video_length': 'Select video length...',
+      'aspect_ratio': 'Select aspect ratio...',
+      'frame_rate': 'Select frame rate...',
+      'video_resolution': 'Select video resolution...',
+      'video_ai_model': 'Select video AI platform...',
       
       // General
       'topic': 'What is this about?',
       'audience': 'Who will read/see this?',
       'purpose': 'What should this achieve?',
       'key_points': 'What must be included?',
-      'format': 'e.g., "blog post, email, report"',
-      'length': 'e.g., "brief, medium, detailed"',
       'examples': 'Provide examples for reference.',
-      'level': 'Choose: Beginner | Intermediate | Advanced | Expert',
-      'language': 'e.g., "formal, casual, technical"',
       'requirements': 'Any special needs?',
       'constraints': 'Any limitations to consider?',
       'goals': 'What are you trying to accomplish?',
@@ -306,9 +323,9 @@ function App() {
 
     // Fallback based on variable type
     if (variable.includes('tone') || variable.includes('style') || variable.includes('voice')) {
-      return 'Choose the appropriate tone...';
+      return 'Select the appropriate tone...';
     } else if (variable.includes('level') || variable.includes('complexity') || variable.includes('difficulty')) {
-      return 'Select the expertise level...';
+      return 'Select expertise level...';
     } else if (variable.includes('length') || variable.includes('duration') || variable.includes('time')) {
       return 'Select desired length...';
     } else if (variable.includes('type') || variable.includes('format') || variable.includes('category')) {
@@ -318,33 +335,53 @@ function App() {
     }
   };
 
-  // Get AI model help text
-  const getAIModelHelpText = () => {
-    return (
-      <div className="ai-model-help">
-        <div className="help-title">
-          <Info size={14} />
-          <span>Which AI platform should I choose?</span>
-        </div>
-        <div className="help-content">
-          <div className="ai-option">
-            <strong>Midjourney:</strong> Best for artistic/creative images, concept art, illustrations
-          </div>
-          <div className="ai-option">
-            <strong>DALL-E 3 (OpenAI):</strong> Best for realistic images, detailed scenes, photography
-          </div>
-          <div className="ai-option">
-            <strong>Stable Diffusion:</strong> Open-source, highly customizable, good for technical images
-          </div>
-          <div className="ai-option">
-            <strong>Leonardo.ai:</strong> Great for game assets, character design, concept art
-          </div>
-          <div className="ai-option">
-            <strong>Adobe Firefly:</strong> Best for commercial/safe content, marketing materials
-          </div>
-        </div>
-      </div>
-    );
+  // Helper function to get appropriate dropdown options based on variable name and template category
+  const getDropdownOptions = (variable, templateCategory) => {
+    // Image Generation variables
+    if (variable.includes('style') && templateCategory?.includes('Image')) {
+      return dropdownOptions.imageStyles;
+    }
+    if (variable.includes('color') && (variable.includes('palette') || variable.includes('mood'))) {
+      return dropdownOptions.colorPalettes;
+    }
+    if (variable.includes('resolution') && !variable.includes('video')) {
+      return dropdownOptions.imageResolutions;
+    }
+    if (variable.includes('lighting')) {
+      return dropdownOptions.lightingOptions;
+    }
+    
+    // Video Generation variables
+    if (variable.includes('video_style')) {
+      return dropdownOptions.videoStyles;
+    }
+    if (variable.includes('video_resolution')) {
+      return dropdownOptions.videoResolutions;
+    }
+    if (variable.includes('frame_rate')) {
+      return dropdownOptions.frameRates;
+    }
+    if (variable.includes('aspect_ratio')) {
+      return dropdownOptions.aspectRatios;
+    }
+    
+    // Business/Marketing variables
+    if (variable.includes('tone') && templateCategory?.includes('Business')) {
+      return dropdownOptions.businessTones;
+    }
+    
+    // General variables
+    if (variable.includes('level') || variable.includes('complexity') || variable.includes('difficulty')) {
+      return dropdownOptions.expertiseLevels;
+    }
+    if (variable.includes('length') || variable.includes('duration')) {
+      return dropdownOptions.lengths;
+    }
+    if (variable.includes('writing_style')) {
+      return dropdownOptions.writingStyles;
+    }
+    
+    return [];
   };
 
   // Filter templates by category and search
@@ -383,6 +420,7 @@ function App() {
       'Education': <GraduationCap size={18} className="category-icon" />,
       'Creative Content': <VideoIcon size={18} className="category-icon" />,
       'Personal Development': <UserCheck size={18} className="category-icon" />,
+      'Video Generation': <Video size={18} className="category-icon" />,
       'Default': <Layers size={18} className="category-icon" />
     };
     return icons[category] || icons['Default'];
@@ -635,7 +673,7 @@ ${aiContent.content}`;
     try {
       const result = await testConnection();
       if (result.success) {
-        alert(`✅ Backend Connected!\n\nTemplates: ${result.data.services?.templates || 0}\nOpenAI: ${result.data.services?.openai ? 'Active' : 'Inactive'}\n Version: ${result.data.services?._version || 'Unknown'}`);
+        alert(`✅ Backend Connected!\n\nTemplates: ${result.data.services?.templates || 0}\nOpenAI: ${result.data.services?.openai ? 'Active' : 'Inactive'}\nGPT Version: ${result.data.services?.gpt_version || 'Unknown'}`);
         checkAPIHealth();
       } else {
         alert(`❌ Connection Failed\n\nURL: ${result.url}\nError: ${result.error}`);
@@ -644,6 +682,61 @@ ${aiContent.content}`;
       alert('Connection test failed. Check console for details.');
       console.error('Connection test error:', error);
     }
+  };
+
+  // Render input field based on variable type
+  const renderInputField = (variable) => {
+    const dropdownOptions = getDropdownOptions(variable, currentTemplate?.category);
+    const hasDropdown = dropdownOptions.length > 0;
+    
+    // Special handling for AI model selection
+    if (variable === 'ai_model' || variable === 'video_ai_model') {
+      const platforms = variable === 'video_ai_model' 
+        ? dropdownOptions.aiPlatforms.video 
+        : dropdownOptions.aiPlatforms.image;
+      
+      return (
+        <select
+          value={inputs[variable] || ''}
+          onChange={(e) => handleInputChange(variable, e.target.value)}
+          className="input-field"
+        >
+          <option value="">Select AI platform...</option>
+          {platforms.map(platform => (
+            <option key={platform.value} value={platform.value}>
+              {platform.label}
+            </option>
+          ))}
+        </select>
+      );
+    }
+    
+    // Dropdown fields
+    if (hasDropdown) {
+      return (
+        <select
+          value={inputs[variable] || ''}
+          onChange={(e) => handleInputChange(variable, e.target.value)}
+          className="input-field"
+        >
+          <option value="">Select {formatVariableLabel(variable).toLowerCase()}...</option>
+          {dropdownOptions.map(option => (
+            <option key={option} value={option}>{option}</option>
+          ))}
+        </select>
+      );
+    }
+    
+    // Text input for Main Subject and other free-text fields
+    return (
+      <input
+        type="text"
+        placeholder={getPlaceholderText(variable)}
+        value={inputs[variable] || ''}
+        onChange={(e) => handleInputChange(variable, e.target.value)}
+        className="input-field"
+      />
+    );
   };
 
   return (
@@ -667,7 +760,7 @@ ${aiContent.content}`;
           <div className="ai-status">
             <div className="status-item">
               <Bot size={16} />
-              <span>-5.2 Expert</span>
+              <span>GPT-5.2 Expert</span>
               <div className={`status-dot ${apiStatus.openai ? 'live' : 'offline'}`}></div>
             </div>
             <div className="expert-mode-toggle">
@@ -821,7 +914,7 @@ ${aiContent.content}`;
                 <span className="stat-label">Categories</span>
               </div>
               <div className="stat">
-                <span className="stat-number">{apiStatus.openai ? '-4' : 'Offline'}</span>
+                <span className="stat-number">{apiStatus.openai ? 'GPT-5.2' : 'Offline'}</span>
                 <span className="stat-label">AI Status</span>
               </div>
             </div>
@@ -904,7 +997,7 @@ ${aiContent.content}`;
                         <Brain size={20} />
                       </div>
                       <div className="stat-info">
-                        <div className="stat-value">-4</div>
+                        <div className="stat-value">GPT-5.2</div>
                         <div className="stat-label">AI Model</div>
                       </div>
                     </div>
@@ -947,7 +1040,7 @@ ${aiContent.content}`;
                         <span className="tag subcategory">{currentTemplate.subcategory}</span>
                         <span className="tag ai">
                           <Zap size={12} />
-                          -4 Optimized
+                          GPT-5.2 Optimized
                         </span>
                       </div>
                     </div>
@@ -970,120 +1063,20 @@ ${aiContent.content}`;
                         <label>
                           <strong>{formatVariableLabel(variable)}</strong>
                           <span className="hint">
-                            {variable.includes('tone') ? '(Select tone for best results)' : 
-                             variable.includes('level') || variable.includes('complexity') ? '(Higher level = More expert output)' :
-                             variable.includes('length') || variable.includes('duration') ? '(Longer = More detailed content)' :
+                            {variable.includes('tone') || variable.includes('style') || 
+                             variable.includes('level') || variable.includes('complexity') ||
+                             variable.includes('length') || variable.includes('duration') ||
+                             variable.includes('type') || variable.includes('format') ||
+                             variable.includes('category') || variable.includes('genre') ||
+                             variable.includes('language') || variable.includes('ai_model') ||
+                             variable.includes('resolution') || variable.includes('color') ||
+                             variable.includes('lighting') || variable.includes('video_') ? 
+                             '(Select option for best results)' : 
                              '(Be specific for best results)'}
                           </span>
                         </label>
                         
-                        {variable === 'ai_model' ? (
-                          <>
-                            <select
-                              value={inputs[variable] || ''}
-                              onChange={(e) => handleInputChange(variable, e.target.value)}
-                              className="input-field"
-                            >
-                              <option value="">Select AI platform...</option>
-                              <option value="Midjourney">Midjourney (Best for artistic/creative)</option>
-                              <option value="DALL-E 3">DALL-E 3 (Best for realistic images)</option>
-                              <option value="Stable Diffusion">Stable Diffusion (Open-source, customizable)</option>
-                              <option value="Leonardo.ai">Leonardo.ai (Great for game assets)</option>
-                              <option value="Adobe Firefly">Adobe Firefly (Commercial/safe content)</option>
-                              <option value="-4">-4 (Text generation)</option>
-                              <option value="Claude">Claude (Text analysis)</option>
-                              <option value="Gemini">Gemini (Google AI)</option>
-                            </select>
-                            {getAIModelHelpText()}
-                          </>
-                        ) : variable.includes('tone') || variable.includes('style') || variable.includes('voice') ? (
-                          <select
-                            value={inputs[variable] || ''}
-                            onChange={(e) => handleInputChange(variable, e.target.value)}
-                            className="input-field"
-                          >
-                            <option value="">Select {variable.includes('tone') ? 'tone' : 'style'}...</option>
-                            {tones.map(tone => (
-                              <option key={tone} value={tone}>
-                                {tone}
-                              </option>
-                            ))}
-                          </select>
-                        ) : variable.includes('duration') || variable.includes('length') || variable.includes('time') ? (
-                          <select
-                            value={inputs[variable] || ''}
-                            onChange={(e) => handleInputChange(variable, e.target.value)}
-                            className="input-field"
-                          >
-                            <option value="">Select length...</option>
-                            <option value="brief">Brief (Concise overview)</option>
-                            <option value="standard">Standard (Comprehensive)</option>
-                            <option value="detailed">Detailed (In-depth analysis)</option>
-                            <option value="comprehensive">Comprehensive (Expert-level detail)</option>
-                          </select>
-                        ) : variable.includes('level') || variable.includes('complexity') || variable.includes('difficulty') ? (
-                          <select
-                            value={inputs[variable] || ''}
-                            onChange={(e) => handleInputChange(variable, e.target.value)}
-                            className="input-field"
-                          >
-                            <option value="">Select expertise level...</option>
-                            <option value="beginner">Beginner (Basic concepts)</option>
-                            <option value="intermediate">Intermediate (Practical application)</option>
-                            <option value="advanced">Advanced (Professional depth)</option>
-                            <option value="expert">Expert (Industry mastery)</option>
-                          </select>
-                        ) : variable.includes('type') || variable.includes('format') || variable.includes('category') ? (
-                          <select
-                            value={inputs[variable] || ''}
-                            onChange={(e) => handleInputChange(variable, e.target.value)}
-                            className="input-field"
-                          >
-                            <option value="">Select {variable.replace(/_/g, ' ')}...</option>
-                            <option value="blog">Blog Post</option>
-                            <option value="email">Email</option>
-                            <option value="report">Report</option>
-                            <option value="article">Article</option>
-                            <option value="social">Social Media</option>
-                            <option value="script">Script</option>
-                          </select>
-                        ) : variable === 'genre' ? (
-                          <select
-                            value={inputs[variable] || ''}
-                            onChange={(e) => handleInputChange(variable, e.target.value)}
-                            className="input-field"
-                          >
-                            <option value="">Select genre...</option>
-                            <option value="fiction">Fiction</option>
-                            <option value="nonfiction">Non-Fiction</option>
-                            <option value="fantasy">Fantasy</option>
-                            <option value="scifi">Science Fiction</option>
-                            <option value="mystery">Mystery</option>
-                            <option value="romance">Romance</option>
-                            <option value="horror">Horror</option>
-                          </select>
-                        ) : variable.includes('language') ? (
-                          <select
-                            value={inputs[variable] || ''}
-                            onChange={(e) => handleInputChange(variable, e.target.value)}
-                            className="input-field"
-                          >
-                            <option value="">Select language style...</option>
-                            <option value="formal">Formal</option>
-                            <option value="casual">Casual</option>
-                            <option value="technical">Technical</option>
-                            <option value="conversational">Conversational</option>
-                            <option value="academic">Academic</option>
-                          </select>
-                        ) : (
-                          <input
-                            type="text"
-                            placeholder={getPlaceholderText(variable)}
-                            value={inputs[variable] || ''}
-                            onChange={(e) => handleInputChange(variable, e.target.value)}
-                            className="input-field"
-                          />
-                        )}
+                        {renderInputField(variable)}
                       </div>
                     ))}
                   </div>
@@ -1138,19 +1131,19 @@ ${aiContent.content}`;
                     </button>
                     
                     <button
-                      onClick={generateCompleteWorkflow}
-                      disabled={loading || aiLoading}
+                      onClick={generateAIResponse}
+                      disabled={aiLoading}
                       className="action-btn success"
                     >
-                      {loading || aiLoading ? (
+                      {aiLoading ? (
                         <>
                           <RefreshCw className="spinner-icon" />
-                          Full Expert Workflow...
+                          Generating AI Analysis...
                         </>
                       ) : (
                         <>
-                          <Zap size={18} />
-                          Generate Prompt + AI Expert Response
+                          <Brain size={18} />
+                          Get AI Expert Analysis
                         </>
                       )}
                     </button>
@@ -1239,7 +1232,7 @@ ${aiContent.content}`;
                           ) : (
                             <>
                               <Brain size={18} />
-                              Get -4 Expert Analysis
+                              Get GPT-5.2 Expert Analysis
                             </>
                           )}
                         </button>
@@ -1254,7 +1247,7 @@ ${aiContent.content}`;
                             <Brain size={18} style={{ marginRight: '8px' }} />
                             AI Expert Response
                             <span className="ai-model">
-                              {aiContent.provider === 'openai' ? '-4' : 'Gemini Pro'} • {aiContent.quality}
+                              {aiContent.provider === 'openai' ? 'GPT-5.2' : 'Gemini Pro'} • {aiContent.quality}
                             </span>
                           </h4>
                           <div className="result-actions">
@@ -1282,7 +1275,7 @@ ${aiContent.content}`;
 
                         <div className="result-meta expert">
                           <div className="meta-item">
-                            <strong>AI Provider:</strong> {aiContent.provider === 'openai' ? '-4 Turbo' : 'Gemini Pro'}
+                            <strong>AI Provider:</strong> {aiContent.provider === 'openai' ? 'GPT-5.2 Turbo' : 'Gemini Pro'}
                           </div>
                           {aiContent.wordCount && (
                             <div className="meta-item">
@@ -1331,7 +1324,7 @@ ${aiContent.content}`;
                   <Brain size={20} />
                 </div>
                 <div className="stat-info">
-                  <div className="stat-value">{apiStatus.openai ? '-4' : 'Offline'}</div>
+                  <div className="stat-value">{apiStatus.openai ? 'GPT-5.2' : 'Offline'}</div>
                   <div className="stat-label">AI Engine</div>
                 </div>
               </div>
