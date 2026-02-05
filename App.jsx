@@ -961,4 +961,380 @@ ${aiContent.content}`;
                         ) : variable.includes('duration') || variable.includes('length') || variable.includes('time') ? (
                           <select
                             value={inputs[variable] || ''}
-                            onChange={(e) => handle
+                            onChange={(e) => handleInputChange(variable, e.target.value)}
+                            className="input-field"
+                          >
+                            <option value="">Select length...</option>
+                            <option value="brief">Brief (Concise overview)</option>
+                            <option value="standard">Standard (Comprehensive)</option>
+                            <option value="detailed">Detailed (In-depth analysis)</option>
+                            <option value="comprehensive">Comprehensive (Expert-level detail)</option>
+                          </select>
+                        ) : variable.includes('level') || variable.includes('complexity') || variable.includes('difficulty') ? (
+                          <select
+                            value={inputs[variable] || ''}
+                            onChange={(e) => handleInputChange(variable, e.target.value)}
+                            className="input-field"
+                          >
+                            <option value="">Select expertise level...</option>
+                            <option value="beginner">Beginner (Basic concepts)</option>
+                            <option value="intermediate">Intermediate (Practical application)</option>
+                            <option value="advanced">Advanced (Professional depth)</option>
+                            <option value="expert">Expert (Industry mastery)</option>
+                          </select>
+                        ) : variable.includes('type') || variable.includes('format') || variable.includes('category') ? (
+                          <select
+                            value={inputs[variable] || ''}
+                            onChange={(e) => handleInputChange(variable, e.target.value)}
+                            className="input-field"
+                          >
+                            <option value="">Select {variable.replace(/_/g, ' ')}...</option>
+                            <option value="blog">Blog Post</option>
+                            <option value="email">Email</option>
+                            <option value="report">Report</option>
+                            <option value="article">Article</option>
+                            <option value="social">Social Media</option>
+                            <option value="script">Script</option>
+                          </select>
+                        ) : variable === 'genre' ? (
+                          <select
+                            value={inputs[variable] || ''}
+                            onChange={(e) => handleInputChange(variable, e.target.value)}
+                            className="input-field"
+                          >
+                            <option value="">Select genre...</option>
+                            <option value="fiction">Fiction</option>
+                            <option value="nonfiction">Non-Fiction</option>
+                            <option value="fantasy">Fantasy</option>
+                            <option value="scifi">Science Fiction</option>
+                            <option value="mystery">Mystery</option>
+                            <option value="romance">Romance</option>
+                            <option value="horror">Horror</option>
+                          </select>
+                        ) : variable.includes('language') ? (
+                          <select
+                            value={inputs[variable] || ''}
+                            onChange={(e) => handleInputChange(variable, e.target.value)}
+                            className="input-field"
+                          >
+                            <option value="">Select language style...</option>
+                            <option value="formal">Formal</option>
+                            <option value="casual">Casual</option>
+                            <option value="technical">Technical</option>
+                            <option value="conversational">Conversational</option>
+                            <option value="academic">Academic</option>
+                          </select>
+                        ) : (
+                          <input
+                            type="text"
+                            placeholder={getPlaceholderText(variable)}
+                            value={inputs[variable] || ''}
+                            onChange={(e) => handleInputChange(variable, e.target.value)}
+                            className="input-field"
+                          />
+                        )}
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="expert-options">
+                    <h4>Expert Configuration</h4>
+                    <div className="options-grid">
+                      <div className="option-group">
+                        <label className="checkbox-label">
+                          <input type="checkbox" defaultChecked />
+                          <span>Include Best Practices</span>
+                        </label>
+                      </div>
+                      <div className="option-group">
+                        <label className="checkbox-label">
+                          <input type="checkbox" defaultChecked />
+                          <span>Add Technical Details</span>
+                        </label>
+                      </div>
+                      <div className="option-group">
+                        <label className="checkbox-label">
+                          <input type="checkbox" defaultChecked />
+                          <span>Include Examples</span>
+                        </label>
+                      </div>
+                      <div className="option-group">
+                        <label className="checkbox-label">
+                          <input type="checkbox" defaultChecked />
+                          <span>Optimize for AI</span>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="action-buttons">
+                    <button
+                      onClick={generatePrompt}
+                      disabled={loading}
+                      className="action-btn primary"
+                    >
+                      {loading ? (
+                        <>
+                          <RefreshCw className="spinner-icon" />
+                          Generating Expert Prompt...
+                        </>
+                      ) : (
+                        <>
+                          <PenTool size={18} />
+                          Generate Expert Prompt
+                        </>
+                      )}
+                    </button>
+                    
+                    <button
+                      onClick={generateCompleteWorkflow}
+                      disabled={loading || aiLoading}
+                      className="action-btn success"
+                    >
+                      {loading || aiLoading ? (
+                        <>
+                          <RefreshCw className="spinner-icon" />
+                          Full Expert Workflow...
+                        </>
+                      ) : (
+                        <>
+                          <Zap size={18} />
+                          Generate Prompt + AI Expert Response
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Results Section */}
+            {generatedPrompt && (
+              <div className="section-card">
+                <div 
+                  className="section-header"
+                  onClick={() => setExpandedSection(expandedSection === 'results' ? null : 'results')}
+                >
+                  <h3>
+                    <Sparkles className="icon" />
+                    Expert Results
+                    <span className="results-badge">
+                      <Diamond size={12} />
+                      Professional Grade
+                    </span>
+                  </h3>
+                  {expandedSection === 'results' ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                </div>
+                
+                {expandedSection === 'results' && (
+                  <div className="section-content">
+                    {/* Generated Prompt */}
+                    <div className="result-card">
+                      <div className="result-header">
+                        <h4>
+                          <Crown size={18} style={{ marginRight: '8px' }} />
+                          Expert-Grade Prompt
+                          <span className="ai-model">{generatedPrompt.expert_level}</span>
+                        </h4>
+                        <div className="result-actions">
+                          <button
+                            onClick={() => copyToClipboard(generatedPrompt.prompt)}
+                            className="action-btn small"
+                          >
+                            {copied ? <Check size={16} /> : <Copy size={16} />}
+                            {copied ? 'Copied!' : 'Copy'}
+                          </button>
+                          <button onClick={exportPrompt} className="action-btn small">
+                            <Download size={16} />
+                            Export
+                          </button>
+                        </div>
+                      </div>
+                      
+                      <div className="prompt-output expert">
+                        <pre>{generatedPrompt.prompt}</pre>
+                      </div>
+
+                      <div className="result-meta expert">
+                        <div className="meta-item">
+                          <strong>Template:</strong> {generatedPrompt.template || 'N/A'}
+                        </div>
+                        <div className="meta-item">
+                          <strong>Specialization:</strong> {generatedPrompt.category || 'N/A'} › {generatedPrompt.subcategory || 'N/A'}
+                        </div>
+                        <div className="meta-item">
+                          <strong>Expert Level:</strong> {generatedPrompt.expert_level || 'Professional'}
+                        </div>
+                        <div className="meta-item">
+                          <strong>Complexity:</strong> {generatedPrompt.metadata?.complexity || 'High'}
+                        </div>
+                        <div className="meta-item">
+                          <strong>Quality:</strong> {generatedPrompt.metadata?.quality || 'Expert Grade'}
+                        </div>
+                      </div>
+
+                      {/* AI Actions */}
+                      <div className="ai-actions">
+                        <button
+                          onClick={generateAIResponse}
+                          disabled={aiLoading}
+                          className="ai-action-btn"
+                        >
+                          {aiLoading ? (
+                            <>
+                              <RefreshCw className="spinner-icon" />
+                              Generating AI Expert Response...
+                            </>
+                          ) : (
+                            <>
+                              <Brain size={18} />
+                              Get GPT-4 Expert Analysis
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* AI Response */}
+                    {aiContent && (
+                      <div className="result-card ai-response expert">
+                        <div className="result-header">
+                          <h4>
+                            <Brain size={18} style={{ marginRight: '8px' }} />
+                            AI Expert Response
+                            <span className="ai-model">
+                              {aiContent.provider === 'openai' ? 'GPT-4' : 'Gemini Pro'} • {aiContent.quality}
+                            </span>
+                          </h4>
+                          <div className="result-actions">
+                            <button
+                              onClick={() => copyToClipboard(aiContent.content)}
+                              className="action-btn small"
+                            >
+                              {copied ? <Check size={16} /> : <Copy size={16} />}
+                              Copy
+                            </button>
+                            <button onClick={exportAIContent} className="action-btn small">
+                              <Download size={16} />
+                              Export
+                            </button>
+                          </div>
+                        </div>
+                        
+                        <div className="ai-content expert">
+                          <div 
+                            dangerouslySetInnerHTML={{ 
+                              __html: renderAIContent(aiContent.content) 
+                            }} 
+                          />
+                        </div>
+
+                        <div className="result-meta expert">
+                          <div className="meta-item">
+                            <strong>AI Provider:</strong> {aiContent.provider === 'openai' ? 'GPT-4 Turbo' : 'Gemini Pro'}
+                          </div>
+                          {aiContent.wordCount && (
+                            <div className="meta-item">
+                              <strong>Analysis Depth:</strong> {aiContent.wordCount} words
+                            </div>
+                          )}
+                          {aiContent.tokens && (
+                            <div className="meta-item">
+                              <strong>Processing:</strong> {aiContent.tokens} tokens
+                            </div>
+                          )}
+                          {aiContent.enhancement && (
+                            <div className="meta-item">
+                              <strong>Enhancement:</strong> {aiContent.enhancement}
+                            </div>
+                          )}
+                          {aiContent.category_optimized && (
+                            <div className="meta-item">
+                              <strong>Optimization:</strong> Category-specific
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Quick Stats Footer */}
+          <div className="content-footer">
+            <div className="quick-stats">
+              <div className="stat-card">
+                <div className="stat-icon">
+                  <Award size={20} />
+                </div>
+                <div className="stat-info">
+                  <div className="stat-value">{templates.length}</div>
+                  <div className="stat-label">Expert Templates</div>
+                </div>
+              </div>
+              
+              <div className="stat-card">
+                <div className="stat-icon">
+                  <Brain size={20} />
+                </div>
+                <div className="stat-info">
+                  <div className="stat-value">{apiStatus.openai ? 'GPT-4' : 'Offline'}</div>
+                  <div className="stat-label">AI Engine</div>
+                </div>
+              </div>
+              
+              <div className="stat-card">
+                <div className="stat-icon">
+                  <Target size={20} />
+                </div>
+                <div className="stat-info">
+                  <div className="stat-value">{categories.length}</div>
+                  <div className="stat-label">Specializations</div>
+                </div>
+              </div>
+              
+              <div className="stat-card">
+                <div className="stat-icon">
+                  <BarChart size={20} />
+                </div>
+                <div className="stat-info">
+                  <div className="stat-value">Expert</div>
+                  <div className="stat-label">Quality Level</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      {/* Toast Notification */}
+      {copied && (
+        <div className="toast">
+          <Check size={18} />
+          Copied to clipboard!
+        </div>
+      )}
+
+      {/* Connection Test Button (Bottom Right) */}
+      <div className="connection-test-fab">
+        <button 
+          onClick={testBackendConnection}
+          className={`connection-btn ${connectionStatus}`}
+          title="Test Backend Connection"
+        >
+          {connectionStatus === 'connected' ? (
+            <Check size={16} />
+          ) : connectionStatus === 'checking' ? (
+            <RefreshCw className="spinner-icon" size={16} />
+          ) : (
+            <X size={16} />
+          )}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+export default App;
