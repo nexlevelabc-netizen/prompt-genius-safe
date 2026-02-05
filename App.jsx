@@ -63,7 +63,8 @@ import {
   UserCheck,
   Zap as Lightning,
   Diamond,
-  Crown
+  Crown,
+  Info
 } from 'lucide-react';
 import './App.css';
 
@@ -215,6 +216,7 @@ function App() {
       'composition': 'Composition/Layout',
       'lighting': 'Lighting',
       'mood': 'Mood/Atmosphere',
+      'ai_model': 'AI Platform / Model',
       
       // General/Common
       'topic': 'Topic',
@@ -280,6 +282,7 @@ function App() {
       'composition': 'e.g., "close-up, wide shot, portrait"',
       'lighting': 'e.g., "dramatic, soft, natural"',
       'mood': 'e.g., "mysterious, joyful, peaceful"',
+      'ai_model': 'Choose AI platform: Midjourney | DALL-E 3 | Stable Diffusion | Leonardo.ai',
       
       // General
       'topic': 'What is this about?',
@@ -313,6 +316,35 @@ function App() {
     } else {
       return `Enter ${variable.replace(/_/g, ' ')}...`;
     }
+  };
+
+  // Get AI model help text
+  const getAIModelHelpText = () => {
+    return (
+      <div className="ai-model-help">
+        <div className="help-title">
+          <Info size={14} />
+          <span>Which AI platform should I choose?</span>
+        </div>
+        <div className="help-content">
+          <div className="ai-option">
+            <strong>Midjourney:</strong> Best for artistic/creative images, concept art, illustrations
+          </div>
+          <div className="ai-option">
+            <strong>DALL-E 3 (OpenAI):</strong> Best for realistic images, detailed scenes, photography
+          </div>
+          <div className="ai-option">
+            <strong>Stable Diffusion:</strong> Open-source, highly customizable, good for technical images
+          </div>
+          <div className="ai-option">
+            <strong>Leonardo.ai:</strong> Great for game assets, character design, concept art
+          </div>
+          <div className="ai-option">
+            <strong>Adobe Firefly:</strong> Best for commercial/safe content, marketing materials
+          </div>
+        </div>
+      </div>
+    );
   };
 
   // Filter templates by category and search
@@ -945,7 +977,26 @@ ${aiContent.content}`;
                           </span>
                         </label>
                         
-                        {variable.includes('tone') || variable.includes('style') || variable.includes('voice') ? (
+                        {variable === 'ai_model' ? (
+                          <>
+                            <select
+                              value={inputs[variable] || ''}
+                              onChange={(e) => handleInputChange(variable, e.target.value)}
+                              className="input-field"
+                            >
+                              <option value="">Select AI platform...</option>
+                              <option value="Midjourney">Midjourney (Best for artistic/creative)</option>
+                              <option value="DALL-E 3">DALL-E 3 (Best for realistic images)</option>
+                              <option value="Stable Diffusion">Stable Diffusion (Open-source, customizable)</option>
+                              <option value="Leonardo.ai">Leonardo.ai (Great for game assets)</option>
+                              <option value="Adobe Firefly">Adobe Firefly (Commercial/safe content)</option>
+                              <option value="GPT-4">GPT-4 (Text generation)</option>
+                              <option value="Claude">Claude (Text analysis)</option>
+                              <option value="Gemini">Gemini (Google AI)</option>
+                            </select>
+                            {getAIModelHelpText()}
+                          </>
+                        ) : variable.includes('tone') || variable.includes('style') || variable.includes('voice') ? (
                           <select
                             value={inputs[variable] || ''}
                             onChange={(e) => handleInputChange(variable, e.target.value)}
