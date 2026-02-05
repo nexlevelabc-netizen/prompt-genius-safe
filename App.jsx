@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { templateAPI } from './services/api.js';
+import { templateAPI, testConnection } from './services/api.js';
 import { 
   Sparkles, 
   Code2, 
@@ -44,7 +44,26 @@ import {
   Smartphone,
   Palette,
   MessageSquare,
-  FileText
+  FileText,
+  Brain,
+  Code,
+  Globe,
+  Target,
+  Award,
+  Clock,
+  BarChart,
+  Shield,
+  Music as MusicIcon,
+  Coffee,
+  GamepadIcon,
+  GraduationCap,
+  Wrench,
+  VideoIcon,
+  BriefcaseBusiness,
+  UserCheck,
+  Zap as Lightning,
+  Diamond,
+  Crown
 } from 'lucide-react';
 import './App.css';
 
@@ -78,15 +97,17 @@ function App() {
   const [copied, setCopied] = useState(false);
   const [templates, setTemplates] = useState([]);
   const [aiProvider, setAiProvider] = useState('openai');
-  const [apiStatus, setApiStatus] = useState({ openai: false, gemini: false });
+  const [apiStatus, setApiStatus] = useState({ openai: false, templates: 0 });
   
   // UI State
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [selectedCategory, setSelectedCategory] = useState('Health');
-  const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
+  const [selectedCategory, setSelectedCategory] = useState('All Categories');
+  const [viewMode, setViewMode] = useState('grid');
   const [searchQuery, setSearchQuery] = useState('');
-  const [expandedSection, setExpandedSection] = useState('templates'); // 'templates', 'customize', 'results'
+  const [expandedSection, setExpandedSection] = useState('templates');
   const [tones, setTones] = useState([]);
+  const [expertMode, setExpertMode] = useState(true);
+  const [connectionStatus, setConnectionStatus] = useState('checking');
 
   // Fetch data on load
   useEffect(() => {
@@ -98,6 +119,7 @@ function App() {
   const fetchTemplates = async () => {
     try {
       const response = await templateAPI.getTemplates();
+      console.log('Templates loaded:', response.data.templates?.length || 0);
       setTemplates(response.data.templates || []);
     } catch (error) {
       console.error('Failed to fetch templates:', error);
@@ -108,10 +130,9 @@ function App() {
   const fetchTones = async () => {
     try {
       const tonesList = [
-        'professional', 'conversational', 'authoritative', 'friendly',
-        'informative', 'persuasive', 'formal', 'casual', 'enthusiastic',
-        'empathetic', 'analytical', 'creative', 'technical', 'simple',
-        'academic', 'journalistic', 'human'
+        'professional', 'expert', 'authoritative', 'clinical', 'technical',
+        'creative', 'persuasive', 'educational', 'conversational', 'formal',
+        'analytical', 'strategic', 'inspirational', 'detailed', 'comprehensive'
       ];
       setTones(tonesList);
     } catch (error) {
@@ -122,10 +143,26 @@ function App() {
   const checkAPIHealth = async () => {
     try {
       const response = await templateAPI.healthCheck();
-      setApiStatus(response.data.services || { openai: false, gemini: false });
+      console.log('API Health:', response.data);
+      setApiStatus({
+        openai: response.data.services?.openai || false,
+        templates: response.data.services?.templates || 0
+      });
+      setConnectionStatus('connected');
     } catch (error) {
       console.error('Health check failed:', error);
-      setApiStatus({ openai: false, gemini: false });
+      setApiStatus({ openai: false, templates: 0 });
+      setConnectionStatus('disconnected');
+      
+      // Try direct connection test
+      const test = await testConnection();
+      if (test.success) {
+        setConnectionStatus('connected');
+        setApiStatus({
+          openai: test.data.services?.openai || false,
+          templates: test.data.services?.templates || 0
+        });
+      }
     }
   };
 
@@ -138,47 +175,43 @@ function App() {
 
   // Filter templates by category and search
   const filteredTemplates = templates.filter(template => {
-    const matchesCategory = selectedCategory === 'All' || template.category === selectedCategory;
+    const matchesCategory = selectedCategory === 'All Categories' || template.category === selectedCategory;
     const matchesSearch = !searchQuery || 
       template.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       template.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      template.category.toLowerCase().includes(searchQuery.toLowerCase());
+      template.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      template.subcategory.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
   });
 
   // Get unique categories
-  const categories = ['All', ...new Set(templates.map(t => t.category))].filter(Boolean);
+  const categories = ['All Categories', ...new Set(templates.map(t => t.category))].filter(Boolean);
 
   // Get current template
   const currentTemplate = templates.find(t => t.id === selectedTemplate);
 
-  // Category icons mapping
+  // Enhanced category icons mapping
   const getCategoryIcon = (category) => {
     const icons = {
-      'Health': <Heart size={18} />,
-      'Relationship': <Users size={18} />,
-      'History': <Book size={18} />,
-      'Image Generation': <Camera size={18} />,
-      'Video Generation': <Video size={18} />,
-      'Fitness': <Dumbbell size={18} />,
-      'Religion': <BookOpen size={18} />,
-      'Documentary': <Film size={18} />,
-      'Business': <Briefcase size={18} />,
-      'Technology': <Smartphone size={18} />,
-      'Education': <BookOpen size={18} />,
-      'Creative Writing': <PenTool size={18} />,
-      'Travel': <Plane size={18} />,
-      'Music': <Music size={18} />,
-      'Movies': <Film size={18} />,
-      'Entertainment': <Palette size={18} />,
-      'Erotic': <Heart size={18} />,
-      'Demography': <Users size={18} />,
-      'News': <Newspaper size={18} />,
-      'Finance': <DollarSign size={18} />,
-      'Justice': <Scale size={18} />,
-      'Transport': <Truck size={18} />
+      'Health & Wellness': <Heart size={18} className="category-icon" />,
+      'Image Generation': <Camera size={18} className="category-icon" />,
+      'Business & Marketing': <Briefcase size={18} className="category-icon" />,
+      'Creative Writing': <PenTool size={18} className="category-icon" />,
+      'Technology': <Code size={18} className="category-icon" />,
+      'Legal & Compliance': <Scale size={18} className="category-icon" />,
+      'Finance & Investment': <DollarSign size={18} className="category-icon" />,
+      'Real Estate': <Home size={18} className="category-icon" />,
+      'Travel & Hospitality': <Plane size={18} className="category-icon" />,
+      'Food & Culinary': <Coffee size={18} className="category-icon" />,
+      'Music & Audio': <MusicIcon size={18} className="category-icon" />,
+      'Fashion & Design': <Palette size={18} className="category-icon" />,
+      'Gaming & Esports': <GamepadIcon size={18} className="category-icon" />,
+      'Education': <GraduationCap size={18} className="category-icon" />,
+      'Creative Content': <VideoIcon size={18} className="category-icon" />,
+      'Personal Development': <UserCheck size={18} className="category-icon" />,
+      'Default': <Layers size={18} className="category-icon" />
     };
-    return icons[category] || <Layers size={18} />;
+    return icons[category] || icons['Default'];
   };
 
   const generatePrompt = async () => {
@@ -194,7 +227,7 @@ function App() {
     
     try {
       const response = await templateAPI.generatePrompt(selectedTemplate, inputs);
-      // FIX: Ensure template is a string, not an object
+      
       const templateName = response.data.template?.name || 
                           response.data.template?.id || 
                           currentTemplate?.name || 
@@ -202,10 +235,11 @@ function App() {
       
       setGeneratedPrompt({
         prompt: response.data.prompt || '',
-        template: templateName, // Now a string, not object
+        template: templateName,
         category: response.data.category || response.data.template?.category || '',
         subcategory: response.data.subcategory || response.data.template?.subcategory || '',
-        metadata: response.data.metadata || {}
+        metadata: response.data.metadata || {},
+        expert_level: response.data.template?.expert_level || 'Professional'
       });
       
     } catch (error) {
@@ -215,7 +249,8 @@ function App() {
         template: 'Error',
         category: 'Error',
         subcategory: '',
-        metadata: {}
+        metadata: {},
+        expert_level: 'Error'
       });
     }
     
@@ -236,7 +271,9 @@ function App() {
         content: response.data.content || '',
         provider: response.data.provider || aiProvider,
         tokens: response.data.tokens || 0,
-        wordCount: response.data.wordCount || (response.data.content ? response.data.content.split(/\s+/).length : 0)
+        wordCount: response.data.wordCount || (response.data.content ? response.data.content.split(/\s+/).length : 0),
+        quality: response.data.quality || 'Standard',
+        enhancement: response.data.enhancement || ''
       });
       
     } catch (error) {
@@ -245,7 +282,9 @@ function App() {
         content: `Error: ${error.response?.data?.error || 'AI generation failed. Please check your API keys.'}`,
         provider: aiProvider,
         tokens: 0,
-        wordCount: 0
+        wordCount: 0,
+        quality: 'Error',
+        enhancement: ''
       });
     }
     
@@ -274,10 +313,11 @@ function App() {
       
       setGeneratedPrompt({
         prompt: response.data.prompt || '',
-        template: templateName, // String, not object
+        template: templateName,
         category: response.data.template?.category || '',
         subcategory: response.data.template?.subcategory || '',
-        metadata: response.data.metadata || {}
+        metadata: response.data.metadata || {},
+        expert_level: response.data.template?.expert_level || 'Professional'
       });
       
       setAiContent({
@@ -285,7 +325,10 @@ function App() {
         provider: response.data.aiResponse?.provider || aiProvider,
         tokens: response.data.aiResponse?.tokens || 0,
         wordCount: response.data.aiResponse?.wordCount || 
-                  (response.data.aiResponse?.content ? response.data.aiResponse.content.split(/\s+/).length : 0)
+                  (response.data.aiResponse?.content ? response.data.aiResponse.content.split(/\s+/).length : 0),
+        quality: response.data.aiResponse?.quality || 'Standard',
+        enhancement: response.data.aiResponse?.enhancement || '',
+        category_optimized: response.data.aiResponse?.category_optimized || false
       });
       
     } catch (error) {
@@ -295,7 +338,8 @@ function App() {
         template: 'Error',
         category: 'Error',
         subcategory: '',
-        metadata: {}
+        metadata: {},
+        expert_level: 'Error'
       });
     }
     
@@ -316,11 +360,19 @@ function App() {
   const exportPrompt = () => {
     if (!generatedPrompt) return;
     
-    const blob = new Blob([generatedPrompt.prompt], { type: 'text/plain' });
+    const content = `PROMPT GENIUS - EXPERT PROMPT
+Template: ${generatedPrompt.template}
+Category: ${generatedPrompt.category} > ${generatedPrompt.subcategory}
+Expert Level: ${generatedPrompt.expert_level}
+Generated: ${new Date().toISOString()}
+
+${generatedPrompt.prompt}`;
+    
+    const blob = new Blob([content], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `prompt-${Date.now()}.txt`;
+    a.download = `expert-prompt-${Date.now()}.txt`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -330,11 +382,20 @@ function App() {
   const exportAIContent = () => {
     if (!aiContent) return;
     
-    const blob = new Blob([aiContent.content], { type: 'text/plain' });
+    const content = `PROMPT GENIUS - AI EXPERT RESPONSE
+Provider: ${aiContent.provider}
+Quality: ${aiContent.quality}
+Tokens: ${aiContent.tokens}
+Generated: ${new Date().toISOString()}
+Enhancement: ${aiContent.enhancement || 'Standard'}
+
+${aiContent.content}`;
+    
+    const blob = new Blob([content], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `ai-response-${Date.now()}.txt`;
+    a.download = `ai-expert-response-${Date.now()}.txt`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -348,42 +409,67 @@ function App() {
     // Convert markdown-style formatting to HTML
     const formattedContent = content
       // Headers
-      .replace(/^# (.*$)/gim, '<h1>$1</h1>')
-      .replace(/^## (.*$)/gim, '<h2>$1</h2>')
-      .replace(/^### (.*$)/gim, '<h3>$1</h3>')
-      .replace(/^#### (.*$)/gim, '<h4>$1</h4>')
+      .replace(/^# (.*$)/gim, '<h1 class="ai-header">$1</h1>')
+      .replace(/^## (.*$)/gim, '<h2 class="ai-subheader">$1</h2>')
+      .replace(/^### (.*$)/gim, '<h3 class="ai-subsubheader">$1</h3>')
+      .replace(/^#### (.*$)/gim, '<h4 class="ai-section">$1</h4>')
       // Bold
-      .replace(/\*\*(.*?)\*\*/gim, '<strong>$1</strong>')
+      .replace(/\*\*(.*?)\*\*/gim, '<strong class="ai-bold">$1</strong>')
       // Italic
-      .replace(/\*(.*?)\*/gim, '<em>$1</em>')
+      .replace(/\*(.*?)\*/gim, '<em class="ai-italic">$1</em>')
       // Lists
-      .replace(/^\* (.*$)/gim, '<li>$1</li>')
-      .replace(/^- (.*$)/gim, '<li>$1</li>')
-      .replace(/^(\d+)\. (.*$)/gim, '<li>$1. $2</li>')
+      .replace(/^\* (.*$)/gim, '<li class="ai-list-item">$1</li>')
+      .replace(/^- (.*$)/gim, '<li class="ai-list-item">$1</li>')
+      .replace(/^(\d+)\. (.*$)/gim, '<li class="ai-ordered-item">$1. $2</li>')
       // Code blocks
-      .replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>')
-      .replace(/`(.*?)`/g, '<code>$1</code>')
+      .replace(/```([\s\S]*?)```/g, '<pre class="ai-code-block"><code>$1</code></pre>')
+      .replace(/`(.*?)`/g, '<code class="ai-inline-code">$1</code>')
       // Blockquotes
-      .replace(/^> (.*$)/gim, '<blockquote>$1</blockquote>')
+      .replace(/^> (.*$)/gim, '<blockquote class="ai-blockquote">$1</blockquote>')
       // Line breaks
-      .replace(/\n\n/g, '</p><p>')
+      .replace(/\n\n/g, '</p><p class="ai-paragraph">')
       .replace(/\n/g, '<br>');
     
     // Wrap in paragraph if no HTML tags yet
     if (!formattedContent.includes('<')) {
-      return `<p>${formattedContent}</p>`;
+      return `<p class="ai-paragraph">${formattedContent}</p>`;
     }
     
     // Wrap loose list items in ul/ol
-    const withLists = formattedContent
-      .replace(/<li>(.*?)<\/li>/g, (match, p1) => {
-        if (p1.match(/^\d+\. /)) {
-          return match;
-        }
-        return match;
-      });
+    let withLists = formattedContent;
+    const listItemRegex = /<li class="ai-list-item">(.*?)<\/li>/g;
+    const listMatches = [...withLists.matchAll(listItemRegex)];
+    
+    if (listMatches.length > 0) {
+      withLists = withLists.replace(listItemRegex, '</ul><ul class="ai-unordered-list"><li class="ai-list-item">$1</li>');
+      withLists = withLists.replace('</ul>', '', 1) + '</ul>';
+    }
+    
+    const orderedItemRegex = /<li class="ai-ordered-item">(.*?)<\/li>/g;
+    const orderedMatches = [...withLists.matchAll(orderedItemRegex)];
+    
+    if (orderedMatches.length > 0) {
+      withLists = withLists.replace(orderedItemRegex, '</ol><ol class="ai-ordered-list"><li class="ai-ordered-item">$1</li>');
+      withLists = withLists.replace('</ol>', '', 1) + '</ol>';
+    }
     
     return withLists;
+  };
+
+  // Connection test function
+  const testBackendConnection = async () => {
+    try {
+      const result = await testConnection();
+      if (result.success) {
+        alert(`✅ Backend Connected!\n\nTemplates: ${result.data.services?.templates || 0}\nOpenAI: ${result.data.services?.openai ? 'Active' : 'Inactive'}\nGPT Version: ${result.data.services?.gpt_version || 'Unknown'}`);
+        checkAPIHealth();
+      } else {
+        alert(`❌ Connection Failed\n\nURL: ${result.url}\nError: ${result.error}`);
+      }
+    } catch (error) {
+      alert('Connection test failed. Check console for details.');
+      console.error('Connection test error:', error);
+    }
   };
 
   return (
@@ -400,24 +486,28 @@ function App() {
           
           <div className="logo">
             <Sparkles className="logo-icon" />
-            <h1>Prompt<span className="gradient-text">Pro</span></h1>
-            <div className="badge">50+ TEMPLATES</div>
+            <h1>Prompt<span className="gradient-text">Genius</span></h1>
+            <div className="badge">{templates.length}+ EXPERT TEMPLATES</div>
           </div>
           
           <div className="ai-status">
             <div className="status-item">
               <Bot size={16} />
-              <span>{aiProvider === 'openai' ? 'GPT-4 Turbo' : 'Gemini'}</span>
+              <span>GPT-4 Expert</span>
               <div className={`status-dot ${apiStatus.openai ? 'live' : 'offline'}`}></div>
             </div>
-            <select 
-              value={aiProvider} 
-              onChange={(e) => setAiProvider(e.target.value)}
-              className="provider-select"
-            >
-              <option value="openai">🤖 GPT-4 Turbo</option>
-              <option value="gemini">🔷 Gemini Pro</option>
-            </select>
+            <div className="expert-mode-toggle">
+              <label className="checkbox-label">
+                <input 
+                  type="checkbox" 
+                  checked={expertMode}
+                  onChange={(e) => setExpertMode(e.target.value)}
+                  style={{ marginRight: '8px' }}
+                />
+                <span>Expert Mode</span>
+                <Crown size={14} style={{ marginLeft: '4px' }} />
+              </label>
+            </div>
           </div>
         </div>
       </header>
@@ -428,7 +518,7 @@ function App() {
           <div className="sidebar-header">
             <h3>
               <Layers className="icon" />
-              Categories
+              Expert Categories
             </h3>
             <div className="view-controls">
               <button 
@@ -448,7 +538,7 @@ function App() {
 
           {/* Category Tabs */}
           <div className="category-tabs">
-            {categories.slice(0, 8).map(category => (
+            {categories.slice(0, 6).map(category => (
               <button
                 key={category}
                 className={`category-tab ${selectedCategory === category ? 'active' : ''}`}
@@ -458,11 +548,11 @@ function App() {
                 }}
               >
                 {getCategoryIcon(category)}
-                <span>{category}</span>
+                <span>{category.split(' ')[0]}</span>
               </button>
             ))}
             
-            {categories.length > 8 && (
+            {categories.length > 6 && (
               <div className="dropdown-categories">
                 <select
                   value={selectedCategory}
@@ -472,7 +562,6 @@ function App() {
                   }}
                   className="category-select"
                 >
-                  <option value="All">All Categories</option>
                   {categories.map(category => (
                     <option key={category} value={category}>
                       {category}
@@ -488,7 +577,7 @@ function App() {
             <Search size={18} />
             <input
               type="text"
-              placeholder="Search templates..."
+              placeholder="Search expert templates..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="search-input"
@@ -509,7 +598,7 @@ function App() {
               {filteredTemplates.map(template => (
                 <div
                   key={template.id}
-                  className={`template-card ${selectedTemplate === template.id ? 'selected' : ''}`}
+                  className={`template-card ${selectedTemplate === template.id ? 'selected' : ''} ${template.expert_level === 'Professional' ? 'premium' : ''}`}
                   onClick={() => {
                     setSelectedTemplate(template.id);
                     setExpandedSection('customize');
@@ -517,13 +606,28 @@ function App() {
                 >
                   <div className="template-icon">
                     {getCategoryIcon(template.category)}
+                    {template.expert_level === 'Professional' && (
+                      <div className="premium-badge">
+                        <Crown size={12} />
+                      </div>
+                    )}
                   </div>
                   <div className="template-info">
-                    <h4>{template.name}</h4>
+                    <h4>
+                      {template.name}
+                      {template.expert_level === 'Professional' && (
+                        <span style={{ color: '#f59e0b', marginLeft: '6px' }}>
+                          <Diamond size={12} />
+                        </span>
+                      )}
+                    </h4>
                     <p className="template-desc">{template.description}</p>
                     <div className="template-tags">
                       <span className="tag category">{template.category}</span>
                       <span className="tag subcategory">{template.subcategory}</span>
+                      {template.expert_level === 'Professional' && (
+                        <span className="tag premium">Expert</span>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -542,12 +646,34 @@ function App() {
                 <span className="stat-number">{categories.length}</span>
                 <span className="stat-label">Categories</span>
               </div>
+              <div className="stat">
+                <span className="stat-number">{apiStatus.openai ? 'GPT-4' : 'Offline'}</span>
+                <span className="stat-label">AI Status</span>
+              </div>
             </div>
           </div>
         </aside>
 
         {/* Main Content */}
         <div className="content">
+          {/* Connection Status Banner */}
+          {connectionStatus === 'checking' && (
+            <div className="connection-banner checking">
+              <RefreshCw className="spinner-icon" size={16} />
+              <span>Checking backend connection...</span>
+            </div>
+          )}
+          
+          {connectionStatus === 'disconnected' && (
+            <div className="connection-banner disconnected">
+              <X size={16} />
+              <span>Backend connection failed. </span>
+              <button onClick={testBackendConnection} className="retry-btn">
+                Retry
+              </button>
+            </div>
+          )}
+
           {/* Collapsible Sections */}
           <div className="sections-container">
             {/* Templates Section */}
@@ -558,7 +684,7 @@ function App() {
               >
                 <h3>
                   <Layers className="icon" />
-                  {selectedCategory === 'All' ? 'All Templates' : `${selectedCategory} Templates`}
+                  {selectedCategory === 'All Categories' ? 'All Expert Templates' : `${selectedCategory} Templates`}
                   <span className="count-badge">{filteredTemplates.length}</span>
                 </h3>
                 {expandedSection === 'templates' ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
@@ -578,6 +704,37 @@ function App() {
                       </button>
                     ))}
                   </div>
+                  
+                  {/* Template Statistics */}
+                  <div className="template-stats">
+                    <div className="stat-card">
+                      <div className="stat-icon">
+                        <Award size={20} />
+                      </div>
+                      <div className="stat-info">
+                        <div className="stat-value">{templates.filter(t => t.expert_level === 'Professional').length}</div>
+                        <div className="stat-label">Expert Templates</div>
+                      </div>
+                    </div>
+                    <div className="stat-card">
+                      <div className="stat-icon">
+                        <Target size={20} />
+                      </div>
+                      <div className="stat-info">
+                        <div className="stat-value">{categories.length}</div>
+                        <div className="stat-label">Specializations</div>
+                      </div>
+                    </div>
+                    <div className="stat-card">
+                      <div className="stat-icon">
+                        <Brain size={20} />
+                      </div>
+                      <div className="stat-info">
+                        <div className="stat-value">GPT-4</div>
+                        <div className="stat-label">AI Model</div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
@@ -590,7 +747,7 @@ function App() {
               >
                 <h3>
                   <PenTool className="icon" />
-                  Customize Prompt
+                  Expert Prompt Customization
                   {currentTemplate && (
                     <span className="template-name">{currentTemplate.name}</span>
                   )}
@@ -602,56 +759,90 @@ function App() {
                 <div className="section-content">
                   <div className="template-preview">
                     <div className="preview-header">
-                      <h4>{currentTemplate.name}</h4>
+                      <h4>
+                        {currentTemplate.name}
+                        {currentTemplate.expert_level === 'Professional' && (
+                          <span className="expert-badge">
+                            <Crown size={14} />
+                            Expert Grade
+                          </span>
+                        )}
+                      </h4>
                       <div className="preview-tags">
-                        <span className="tag">{currentTemplate.category}</span>
-                        <span className="tag">{currentTemplate.subcategory}</span>
+                        <span className="tag category">{currentTemplate.category}</span>
+                        <span className="tag subcategory">{currentTemplate.subcategory}</span>
+                        <span className="tag ai">
+                          <Zap size={12} />
+                          GPT-4 Optimized
+                        </span>
                       </div>
                     </div>
                     <p className="preview-desc">{currentTemplate.description}</p>
+                    
+                    <div className="template-complexity">
+                      <div className="complexity-indicator">
+                        <span>Complexity:</span>
+                        <div className="complexity-bar">
+                          <div className="complexity-fill" style={{ width: '75%' }}></div>
+                        </div>
+                        <span>Advanced</span>
+                      </div>
+                    </div>
                   </div>
 
                   <div className="input-grid">
                     {currentTemplate.variables && currentTemplate.variables.map(variable => (
                       <div className="input-group" key={variable}>
                         <label>
-                          {variable.charAt(0).toUpperCase() + variable.slice(1).replace(/([A-Z])/g, ' $1')}
-                          {variable === 'tone' && (
-                            <span className="hint">(Try "human" for natural tone)</span>
+                          <strong>{variable.charAt(0).toUpperCase() + variable.slice(1).replace(/([A-Z])/g, ' $1')}</strong>
+                          {variable.includes('tone') && (
+                            <span className="hint">(Select professional tone for expert results)</span>
+                          )}
+                          {variable.includes('detail') || variable.includes('depth') && (
+                            <span className="hint">(Higher detail = More comprehensive output)</span>
                           )}
                         </label>
-                        {variable === 'tone' ? (
+                        {variable.includes('tone') ? (
                           <select
                             value={inputs[variable] || ''}
                             onChange={(e) => handleInputChange(variable, e.target.value)}
                             className="input-field"
                           >
-                            <option value="">Select {variable}...</option>
+                            <option value="">Select professional tone...</option>
                             {tones.map(tone => (
                               <option key={tone} value={tone}>
                                 {tone.charAt(0).toUpperCase() + tone.slice(1)}
                               </option>
                             ))}
                           </select>
-                        ) : variable === 'duration' || variable === 'length' ? (
+                        ) : variable.includes('duration') || variable.includes('length') || variable.includes('time') ? (
                           <select
                             value={inputs[variable] || ''}
                             onChange={(e) => handleInputChange(variable, e.target.value)}
                             className="input-field"
                           >
                             <option value="">Select {variable}...</option>
-                            <option value="short">Short (100-200 words)</option>
-                            <option value="medium">Medium (300-500 words)</option>
-                            <option value="long">Long (500+ words)</option>
-                            <option value="5 minutes">5 minutes</option>
-                            <option value="10 minutes">10 minutes</option>
-                            <option value="30 minutes">30 minutes</option>
-                            <option value="1 hour">1 hour</option>
+                            <option value="brief">Brief (Concise overview)</option>
+                            <option value="standard">Standard (Comprehensive)</option>
+                            <option value="detailed">Detailed (In-depth analysis)</option>
+                            <option value="comprehensive">Comprehensive (Expert-level detail)</option>
+                          </select>
+                        ) : variable.includes('level') || variable.includes('complexity') ? (
+                          <select
+                            value={inputs[variable] || ''}
+                            onChange={(e) => handleInputChange(variable, e.target.value)}
+                            className="input-field"
+                          >
+                            <option value="">Select expertise level...</option>
+                            <option value="beginner">Beginner (Basic concepts)</option>
+                            <option value="intermediate">Intermediate (Practical application)</option>
+                            <option value="advanced">Advanced (Professional depth)</option>
+                            <option value="expert">Expert (Industry mastery)</option>
                           </select>
                         ) : (
                           <input
                             type="text"
-                            placeholder={`Enter ${variable}`}
+                            placeholder={`Enter ${variable} (be specific for best results)`}
                             value={inputs[variable] || ''}
                             onChange={(e) => handleInputChange(variable, e.target.value)}
                             className="input-field"
@@ -659,6 +850,36 @@ function App() {
                         )}
                       </div>
                     ))}
+                  </div>
+
+                  <div className="expert-options">
+                    <h4>Expert Configuration</h4>
+                    <div className="options-grid">
+                      <div className="option-group">
+                        <label className="checkbox-label">
+                          <input type="checkbox" defaultChecked />
+                          <span>Include Industry Standards</span>
+                        </label>
+                      </div>
+                      <div className="option-group">
+                        <label className="checkbox-label">
+                          <input type="checkbox" defaultChecked />
+                          <span>Add Technical Specifications</span>
+                        </label>
+                      </div>
+                      <div className="option-group">
+                        <label className="checkbox-label">
+                          <input type="checkbox" defaultChecked />
+                          <span>Include Best Practices</span>
+                        </label>
+                      </div>
+                      <div className="option-group">
+                        <label className="checkbox-label">
+                          <input type="checkbox" defaultChecked />
+                          <span>Add Examples & References</span>
+                        </label>
+                      </div>
+                    </div>
                   </div>
 
                   <div className="action-buttons">
@@ -670,12 +891,12 @@ function App() {
                       {loading ? (
                         <>
                           <RefreshCw className="spinner-icon" />
-                          Generating...
+                          Generating Expert Prompt...
                         </>
                       ) : (
                         <>
                           <PenTool size={18} />
-                          Generate Prompt
+                          Generate Expert Prompt
                         </>
                       )}
                     </button>
@@ -688,12 +909,12 @@ function App() {
                       {loading || aiLoading ? (
                         <>
                           <RefreshCw className="spinner-icon" />
-                          Full AI Workflow...
+                          Full Expert Workflow...
                         </>
                       ) : (
                         <>
                           <Zap size={18} />
-                          Generate Prompt + AI Response
+                          Generate Prompt + AI Expert Response
                         </>
                       )}
                     </button>
@@ -711,8 +932,11 @@ function App() {
                 >
                   <h3>
                     <Sparkles className="icon" />
-                    Generated Results
-                    <span className="results-badge">New</span>
+                    Expert Results
+                    <span className="results-badge">
+                      <Diamond size={12} />
+                      Professional Grade
+                    </span>
                   </h3>
                   {expandedSection === 'results' ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
                 </div>
@@ -722,7 +946,11 @@ function App() {
                     {/* Generated Prompt */}
                     <div className="result-card">
                       <div className="result-header">
-                        <h4>✨ Generated Prompt</h4>
+                        <h4>
+                          <Crown size={18} style={{ marginRight: '8px' }} />
+                          Expert-Grade Prompt
+                          <span className="ai-model">{generatedPrompt.expert_level}</span>
+                        </h4>
                         <div className="result-actions">
                           <button
                             onClick={() => copyToClipboard(generatedPrompt.prompt)}
@@ -738,22 +966,26 @@ function App() {
                         </div>
                       </div>
                       
-                      <div className="prompt-output">
+                      <div className="prompt-output expert">
                         <pre>{generatedPrompt.prompt}</pre>
                       </div>
 
-                      <div className="result-meta">
+                      <div className="result-meta expert">
                         <div className="meta-item">
                           <strong>Template:</strong> {generatedPrompt.template || 'N/A'}
                         </div>
                         <div className="meta-item">
-                          <strong>Category:</strong> {generatedPrompt.category || 'N/A'} {generatedPrompt.subcategory ? `› ${generatedPrompt.subcategory}` : ''}
+                          <strong>Specialization:</strong> {generatedPrompt.category || 'N/A'} › {generatedPrompt.subcategory || 'N/A'}
                         </div>
-                        {generatedPrompt.metadata?.isHumanTone && (
-                          <div className="meta-item">
-                            <strong>Tone:</strong> Human (Natural)
-                          </div>
-                        )}
+                        <div className="meta-item">
+                          <strong>Expert Level:</strong> {generatedPrompt.expert_level || 'Professional'}
+                        </div>
+                        <div className="meta-item">
+                          <strong>Complexity:</strong> {generatedPrompt.metadata?.complexity || 'High'}
+                        </div>
+                        <div className="meta-item">
+                          <strong>Quality:</strong> {generatedPrompt.metadata?.quality || 'Expert Grade'}
+                        </div>
                       </div>
 
                       {/* AI Actions */}
@@ -766,12 +998,12 @@ function App() {
                           {aiLoading ? (
                             <>
                               <RefreshCw className="spinner-icon" />
-                              Generating AI Response...
+                              Generating AI Expert Response...
                             </>
                           ) : (
                             <>
-                              <Bot size={18} />
-                              Get {aiProvider === 'openai' ? 'GPT-4 Turbo' : 'Gemini Pro'} Response
+                              <Brain size={18} />
+                              Get GPT-4 Expert Analysis
                             </>
                           )}
                         </button>
@@ -780,9 +1012,15 @@ function App() {
 
                     {/* AI Response */}
                     {aiContent && (
-                      <div className="result-card ai-response">
+                      <div className="result-card ai-response expert">
                         <div className="result-header">
-                          <h4>🤖 AI Response</h4>
+                          <h4>
+                            <Brain size={18} style={{ marginRight: '8px' }} />
+                            AI Expert Response
+                            <span className="ai-model">
+                              {aiContent.provider === 'openai' ? 'GPT-4' : 'Gemini Pro'} • {aiContent.quality}
+                            </span>
+                          </h4>
                           <div className="result-actions">
                             <button
                               onClick={() => copyToClipboard(aiContent.content)}
@@ -798,7 +1036,7 @@ function App() {
                           </div>
                         </div>
                         
-                        <div className="ai-content">
+                        <div className="ai-content expert">
                           <div 
                             dangerouslySetInnerHTML={{ 
                               __html: renderAIContent(aiContent.content) 
@@ -806,18 +1044,28 @@ function App() {
                           />
                         </div>
 
-                        <div className="result-meta">
+                        <div className="result-meta expert">
                           <div className="meta-item">
-                            <strong>Provider:</strong> {aiContent.provider === 'openai' ? 'GPT-4 Turbo' : 'Gemini Pro'}
+                            <strong>AI Provider:</strong> {aiContent.provider === 'openai' ? 'GPT-4 Turbo' : 'Gemini Pro'}
                           </div>
                           {aiContent.wordCount && (
                             <div className="meta-item">
-                              <strong>Words:</strong> {aiContent.wordCount}
+                              <strong>Analysis Depth:</strong> {aiContent.wordCount} words
                             </div>
                           )}
                           {aiContent.tokens && (
                             <div className="meta-item">
-                              <strong>Tokens:</strong> {aiContent.tokens}
+                              <strong>Processing:</strong> {aiContent.tokens} tokens
+                            </div>
+                          )}
+                          {aiContent.enhancement && (
+                            <div className="meta-item">
+                              <strong>Enhancement:</strong> {aiContent.enhancement}
+                            </div>
+                          )}
+                          {aiContent.category_optimized && (
+                            <div className="meta-item">
+                              <strong>Optimization:</strong> Category-specific
                             </div>
                           )}
                         </div>
@@ -834,31 +1082,41 @@ function App() {
             <div className="quick-stats">
               <div className="stat-card">
                 <div className="stat-icon">
-                  <Layers size={20} />
+                  <Award size={20} />
                 </div>
                 <div className="stat-info">
                   <div className="stat-value">{templates.length}</div>
-                  <div className="stat-label">Total Templates</div>
+                  <div className="stat-label">Expert Templates</div>
                 </div>
               </div>
               
               <div className="stat-card">
                 <div className="stat-icon">
-                  <Bot size={20} />
+                  <Brain size={20} />
                 </div>
                 <div className="stat-info">
-                  <div className="stat-value">{apiStatus.openai ? 'Live' : 'Offline'}</div>
-                  <div className="stat-label">AI Status</div>
+                  <div className="stat-value">{apiStatus.openai ? 'GPT-4' : 'Offline'}</div>
+                  <div className="stat-label">AI Engine</div>
                 </div>
               </div>
               
               <div className="stat-card">
                 <div className="stat-icon">
-                  <Zap size={20} />
+                  <Target size={20} />
                 </div>
                 <div className="stat-info">
                   <div className="stat-value">{categories.length}</div>
-                  <div className="stat-label">Categories</div>
+                  <div className="stat-label">Specializations</div>
+                </div>
+              </div>
+              
+              <div className="stat-card">
+                <div className="stat-icon">
+                  <BarChart size={20} />
+                </div>
+                <div className="stat-info">
+                  <div className="stat-value">Expert</div>
+                  <div className="stat-label">Quality Level</div>
                 </div>
               </div>
             </div>
@@ -873,6 +1131,23 @@ function App() {
           Copied to clipboard!
         </div>
       )}
+
+      {/* Connection Test Button (Bottom Right) */}
+      <div className="connection-test-fab">
+        <button 
+          onClick={testBackendConnection}
+          className={`connection-btn ${connectionStatus}`}
+          title="Test Backend Connection"
+        >
+          {connectionStatus === 'connected' ? (
+            <Check size={16} />
+          ) : connectionStatus === 'checking' ? (
+            <RefreshCw className="spinner-icon" size={16} />
+          ) : (
+            <X size={16} />
+          )}
+        </button>
+      </div>
     </div>
   );
 }
