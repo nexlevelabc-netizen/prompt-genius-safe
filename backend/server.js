@@ -222,7 +222,7 @@ Lighting: {lighting} (studio lighting/cinematic/dramatic/soft natural)
 Color Palette: {colors}
 Mood & Atmosphere: {mood}
 Technical Specs: {resolution}, {aspect_ratio}
-AI Model: {ai_model}
+AI Platform: {ai_model}
 Art Director Notes: {art_direction}
 
 Professional Requirements:
@@ -234,7 +234,7 @@ Professional Requirements:
 - Add environmental context
 
 Example Output Format:
-"Professional {style} of {subject}, {composition}, {lighting}, color scheme: {colors}, {mood} atmosphere, {resolution}, {aspect_ratio}, shot on {camera_type} with {lens_spec}, {art_direction}, --ar {aspect_ratio_numeric} --v {version} --style {style_parameter}"`,
+"Professional {style} of {subject}, {composition}, {lighting}, color scheme: {colors}, {mood} atmosphere, {resolution}, {aspect_ratio}, AI Platform: {ai_model}, {art_direction} --ar {aspect_ratio_numeric} --v {version} --style {style_parameter}"`,
     variables: ['subject', 'style', 'composition', 'lighting', 'colors', 'mood', 'resolution', 'aspect_ratio', 'ai_model', 'art_direction']
   },
 
@@ -252,6 +252,7 @@ Styling: {styling}
 Brand Aesthetic: {brand_aesthetic}
 Target Audience: {target_audience}
 Commercial Intent: {commercial_intent}
+AI Platform: {ai_model}
 Technical Specs: {camera}, {lens}, {settings}
 
 Professional Requirements:
@@ -263,8 +264,8 @@ Professional Requirements:
 - Specify file delivery format
 
 Example Output:
-"Professional {shot_type} product photography of {product_type}, {background}, {lighting_setup}, styled with {styling}, brand aesthetic: {brand_aesthetic}, target: {target_audience}, commercial intent: {commercial_intent}, shot on {camera} with {lens} at {settings}, commercial studio lighting, product-focused composition, clean background, professional color grading, high-end retouching, 8K resolution, commercial use ready"`,
-    variables: ['product_type', 'shot_type', 'background', 'lighting_setup', 'styling', 'brand_aesthetic', 'target_audience', 'commercial_intent', 'camera', 'lens', 'settings']
+"Professional {shot_type} product photography of {product_type}, {background}, {lighting_setup}, styled with {styling}, brand aesthetic: {brand_aesthetic}, target: {target_audience}, commercial intent: {commercial_intent}, AI Platform: {ai_model}, shot on {camera} with {lens} at {settings}, commercial studio lighting, product-focused composition, clean background, professional color grading, high-end retouching, 8K resolution, commercial use ready"`,
+    variables: ['product_type', 'shot_type', 'background', 'lighting_setup', 'styling', 'brand_aesthetic', 'target_audience', 'commercial_intent', 'ai_model', 'camera', 'lens', 'settings']
   },
 
   'architectural-visualization': {
@@ -282,6 +283,7 @@ Render Style: {render_style} (photorealistic/wireframe/conceptual)
 Materials: {materials}
 Lighting Conditions: {lighting_conditions}
 Atmosphere: {atmosphere}
+AI Platform: {ai_model}
 Scale: {scale}
 
 Professional Requirements:
@@ -293,8 +295,8 @@ Professional Requirements:
 - Specify rendering engine parameters
 
 Example Output:
-"Professional architectural visualization of {project_type} in {arch_style} style, {time} in {season}, {viewpoint} viewpoint, {render_style} rendering, materials: {materials}, lighting: {lighting_conditions}, atmosphere: {atmosphere}, scale: {scale}, detailed material textures, accurate lighting simulation, environmental integration, human scale reference, professional arch-viz standards, 8K resolution, --ar 16:9 --v 6"`,
-    variables: ['project_type', 'arch_style', 'time', 'season', 'viewpoint', 'render_style', 'materials', 'lighting_conditions', 'atmosphere', 'scale']
+"Professional architectural visualization of {project_type} in {arch_style} style, {time} in {season}, {viewpoint} viewpoint, {render_style} rendering, materials: {materials}, lighting: {lighting_conditions}, atmosphere: {atmosphere}, AI Platform: {ai_model}, scale: {scale}, detailed material textures, accurate lighting simulation, environmental integration, human scale reference, professional arch-viz standards, 8K resolution, --ar 16:9 --v 6"`,
+    variables: ['project_type', 'arch_style', 'time', 'season', 'viewpoint', 'render_style', 'materials', 'lighting_conditions', 'atmosphere', 'ai_model', 'scale']
   },
 
   'character-design': {
@@ -312,6 +314,7 @@ Physical Attributes: {physical}
 Costume/Attire: {costume}
 Equipment/Gear: {equipment}
 Backstory Elements: {backstory}
+AI Platform: {ai_model}
 Technical Requirements: {technical}
 
 Professional Requirements:
@@ -323,8 +326,8 @@ Professional Requirements:
 - Specify turnaround requirements
 
 Example Output:
-"Professional {art_style} character design for {character_type} in {genre} genre, personality: {personality}, role: {role}, physical attributes: {physical}, costume: {costume}, equipment: {equipment}, backstory elements: {backstory}, full-body turnaround, expression sheets, detailed costume design, consistent style guide, professional character design standards, 8K resolution, character sheet format, --v 6"`,
-    variables: ['character_type', 'genre', 'art_style', 'personality', 'role', 'physical', 'costume', 'equipment', 'backstory', 'technical']
+"Professional {art_style} character design for {character_type} in {genre} genre, personality: {personality}, role: {role}, physical attributes: {physical}, costume: {costume}, equipment: {equipment}, backstory elements: {backstory}, AI Platform: {ai_model}, full-body turnaround, expression sheets, detailed costume design, consistent style guide, professional character design standards, 8K resolution, character sheet format, --v 6"`,
+    variables: ['character_type', 'genre', 'art_style', 'personality', 'role', 'physical', 'costume', 'equipment', 'backstory', 'ai_model', 'technical']
   },
 
   // ========== BUSINESS & MARKETING (10 Templates) ==========
@@ -1365,4 +1368,5 @@ app.listen(PORT, HOST, () => {
   console.log(`   - Category-specific optimizations`);
   console.log(`   - Professional AI enhancements`);
   console.log(`🧹 Prompt Cleanup: Enabled - Removing placeholder markers from outputs`);
+  console.log(`🤖 AI Model Support: Added to all Image Generation templates`);
 });
