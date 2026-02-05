@@ -68,7 +68,7 @@ import {
 import './App.css';
 
 function App() {
-  // Add Google Fonts on mount
+  // Enhanced Google Fonts with premium options
   useEffect(() => {
     const link = document.createElement('link');
     link.rel = 'preconnect';
@@ -81,10 +81,14 @@ function App() {
     link2.crossOrigin = 'true';
     document.head.appendChild(link2);
     
+    // Premium font stack: Inter (sans-serif), JetBrains Mono (monospace), Source Serif Pro (serif for content)
     const link3 = document.createElement('link');
     link3.rel = 'stylesheet';
-    link3.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap';
+    link3.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500;600&family=Source+Serif+Pro:wght@400;600;700&display=swap';
     document.head.appendChild(link3);
+    
+    // Apply base font styles
+    document.body.style.fontFamily = "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
   }, []);
 
   // State management
@@ -130,9 +134,10 @@ function App() {
   const fetchTones = async () => {
     try {
       const tonesList = [
-        'professional', 'expert', 'authoritative', 'clinical', 'technical',
-        'creative', 'persuasive', 'educational', 'conversational', 'formal',
-        'analytical', 'strategic', 'inspirational', 'detailed', 'comprehensive'
+        'Professional', 'Expert', 'Authoritative', 'Clinical', 'Technical',
+        'Creative', 'Persuasive', 'Educational', 'Conversational', 'Formal',
+        'Analytical', 'Strategic', 'Inspirational', 'Detailed', 'Comprehensive',
+        'Casual', 'Friendly', 'Academic', 'Business', 'Marketing'
       ];
       setTones(tonesList);
     } catch (error) {
@@ -171,6 +176,143 @@ function App() {
       ...prev,
       [field]: value
     }));
+  };
+
+  // Enhanced input label formatter - converts snake_case to readable text
+  const formatVariableLabel = (variable) => {
+    const labelMap = {
+      // Medical/Health
+      'presentation': 'Describe the Symptoms',
+      'diagnosis_considerations': 'Possible Causes to Consider',
+      'treatment_approach': 'Suggested Treatment Plan',
+      'monitoring': 'What to Watch For (Follow-up)',
+      'red_flags': 'Urgent Warning Signs',
+      'complexity': 'Case Difficulty Level',
+      'condition': 'Main Medical Condition',
+      'demographic': 'Patient Information',
+      'tone': 'Output Tone / Style',
+      
+      // Business/Marketing
+      'target_audience': 'Target Audience',
+      'product_service': 'Product or Service',
+      'key_benefits': 'Key Benefits',
+      'call_to_action': 'Call to Action',
+      'unique_selling_proposition': 'Unique Selling Point',
+      'brand_voice': 'Brand Voice',
+      
+      // Creative Writing
+      'genre': 'Genre',
+      'plot_summary': 'Plot Summary',
+      'character_descriptions': 'Character Descriptions',
+      'setting': 'Setting/Location',
+      'theme': 'Theme/Mood',
+      'writing_style': 'Writing Style',
+      
+      // Image Generation
+      'subject': 'Main Subject',
+      'style': 'Art Style',
+      'color_palette': 'Color Palette',
+      'composition': 'Composition/Layout',
+      'lighting': 'Lighting',
+      'mood': 'Mood/Atmosphere',
+      
+      // General/Common
+      'topic': 'Topic',
+      'audience': 'Intended Audience',
+      'purpose': 'Purpose/Goal',
+      'key_points': 'Key Points to Include',
+      'format': 'Output Format',
+      'length': 'Desired Length',
+      'examples': 'Examples/References',
+      'level': 'Expertise Level',
+      'language': 'Language/Tone',
+      'requirements': 'Specific Requirements',
+      'constraints': 'Limitations/Constraints',
+      'goals': 'Desired Outcomes',
+      'metrics': 'Success Metrics'
+    };
+
+    if (labelMap[variable]) {
+      return labelMap[variable];
+    }
+
+    // Fallback: convert snake_case to readable text
+    return variable
+      .replace(/_/g, ' ')
+      .replace(/\b\w/g, char => char.toUpperCase())
+      .replace(/\bai\b/gi, 'AI')
+      .replace(/\bapi\b/gi, 'API');
+  };
+
+  // Enhanced placeholder text generator
+  const getPlaceholderText = (variable) => {
+    const placeholderMap = {
+      // Medical/Health
+      'presentation': 'Describe how the condition looks/feels. Be detailed.',
+      'diagnosis_considerations': 'List possible conditions to analyze. e.g., "gout, infection, fracture"',
+      'treatment_approach': 'Describe the recommended care steps. e.g., "rest, medication, therapy"',
+      'monitoring': 'List signs of improvement or worsening to track.',
+      'red_flags': 'List symptoms that require immediate attention.',
+      'complexity': 'Choose: Beginner | Intermediate | Advanced',
+      'condition': 'e.g., "swelling in left ankle"',
+      'demographic': 'e.g., "45-year-old male"',
+      'tone': 'Choose tone for the output...',
+      
+      // Business/Marketing
+      'target_audience': 'Describe your ideal customer or audience.',
+      'product_service': 'Briefly describe what you offer.',
+      'key_benefits': 'List main benefits or features.',
+      'call_to_action': 'What should the audience do next?',
+      'unique_selling_proposition': 'What makes you different?',
+      'brand_voice': 'Describe your brand personality.',
+      
+      // Creative
+      'plot_summary': 'Brief overview of the story.',
+      'character_descriptions': 'Describe main characters.',
+      'setting': 'Where and when does this take place?',
+      'theme': 'What mood or message do you want?',
+      'writing_style': 'Describe the writing approach.',
+      
+      // Image Generation
+      'subject': 'What is the main focus?',
+      'style': 'e.g., "photorealistic, cartoon, oil painting"',
+      'color_palette': 'e.g., "warm tones, cool blues, vibrant"',
+      'composition': 'e.g., "close-up, wide shot, portrait"',
+      'lighting': 'e.g., "dramatic, soft, natural"',
+      'mood': 'e.g., "mysterious, joyful, peaceful"',
+      
+      // General
+      'topic': 'What is this about?',
+      'audience': 'Who will read/see this?',
+      'purpose': 'What should this achieve?',
+      'key_points': 'What must be included?',
+      'format': 'e.g., "blog post, email, report"',
+      'length': 'e.g., "brief, medium, detailed"',
+      'examples': 'Provide examples for reference.',
+      'level': 'Choose: Beginner | Intermediate | Advanced | Expert',
+      'language': 'e.g., "formal, casual, technical"',
+      'requirements': 'Any special needs?',
+      'constraints': 'Any limitations to consider?',
+      'goals': 'What are you trying to accomplish?',
+      'metrics': 'How will you measure success?'
+    };
+
+    if (placeholderMap[variable]) {
+      return placeholderMap[variable];
+    }
+
+    // Fallback based on variable type
+    if (variable.includes('tone') || variable.includes('style') || variable.includes('voice')) {
+      return 'Choose the appropriate tone...';
+    } else if (variable.includes('level') || variable.includes('complexity') || variable.includes('difficulty')) {
+      return 'Select the expertise level...';
+    } else if (variable.includes('length') || variable.includes('duration') || variable.includes('time')) {
+      return 'Select desired length...';
+    } else if (variable.includes('type') || variable.includes('format') || variable.includes('category')) {
+      return 'Select from options...';
+    } else {
+      return `Enter ${variable.replace(/_/g, ' ')}...`;
+    }
   };
 
   // Filter templates by category and search
@@ -501,7 +643,7 @@ ${aiContent.content}`;
                 <input 
                   type="checkbox" 
                   checked={expertMode}
-                  onChange={(e) => setExpertMode(e.target.value)}
+                  onChange={(e) => setExpertMode(e.target.checked)}
                   style={{ marginRight: '8px' }}
                 />
                 <span>Expert Mode</span>
@@ -794,24 +936,25 @@ ${aiContent.content}`;
                     {currentTemplate.variables && currentTemplate.variables.map(variable => (
                       <div className="input-group" key={variable}>
                         <label>
-                          <strong>{variable.charAt(0).toUpperCase() + variable.slice(1).replace(/([A-Z])/g, ' $1')}</strong>
-                          {variable.includes('tone') && (
-                            <span className="hint">(Select professional tone for expert results)</span>
-                          )}
-                          {variable.includes('detail') || variable.includes('depth') && (
-                            <span className="hint">(Higher detail = More comprehensive output)</span>
-                          )}
+                          <strong>{formatVariableLabel(variable)}</strong>
+                          <span className="hint">
+                            {variable.includes('tone') ? '(Select tone for best results)' : 
+                             variable.includes('level') || variable.includes('complexity') ? '(Higher level = More expert output)' :
+                             variable.includes('length') || variable.includes('duration') ? '(Longer = More detailed content)' :
+                             '(Be specific for best results)'}
+                          </span>
                         </label>
-                        {variable.includes('tone') ? (
+                        
+                        {variable.includes('tone') || variable.includes('style') || variable.includes('voice') ? (
                           <select
                             value={inputs[variable] || ''}
                             onChange={(e) => handleInputChange(variable, e.target.value)}
                             className="input-field"
                           >
-                            <option value="">Select professional tone...</option>
+                            <option value="">Select {variable.includes('tone') ? 'tone' : 'style'}...</option>
                             {tones.map(tone => (
                               <option key={tone} value={tone}>
-                                {tone.charAt(0).toUpperCase() + tone.slice(1)}
+                                {tone}
                               </option>
                             ))}
                           </select>
@@ -821,13 +964,13 @@ ${aiContent.content}`;
                             onChange={(e) => handleInputChange(variable, e.target.value)}
                             className="input-field"
                           >
-                            <option value="">Select {variable}...</option>
+                            <option value="">Select length...</option>
                             <option value="brief">Brief (Concise overview)</option>
                             <option value="standard">Standard (Comprehensive)</option>
                             <option value="detailed">Detailed (In-depth analysis)</option>
                             <option value="comprehensive">Comprehensive (Expert-level detail)</option>
                           </select>
-                        ) : variable.includes('level') || variable.includes('complexity') ? (
+                        ) : variable.includes('level') || variable.includes('complexity') || variable.includes('difficulty') ? (
                           <select
                             value={inputs[variable] || ''}
                             onChange={(e) => handleInputChange(variable, e.target.value)}
@@ -839,10 +982,52 @@ ${aiContent.content}`;
                             <option value="advanced">Advanced (Professional depth)</option>
                             <option value="expert">Expert (Industry mastery)</option>
                           </select>
+                        ) : variable.includes('type') || variable.includes('format') || variable.includes('category') ? (
+                          <select
+                            value={inputs[variable] || ''}
+                            onChange={(e) => handleInputChange(variable, e.target.value)}
+                            className="input-field"
+                          >
+                            <option value="">Select {variable.replace(/_/g, ' ')}...</option>
+                            <option value="blog">Blog Post</option>
+                            <option value="email">Email</option>
+                            <option value="report">Report</option>
+                            <option value="article">Article</option>
+                            <option value="social">Social Media</option>
+                            <option value="script">Script</option>
+                          </select>
+                        ) : variable === 'genre' ? (
+                          <select
+                            value={inputs[variable] || ''}
+                            onChange={(e) => handleInputChange(variable, e.target.value)}
+                            className="input-field"
+                          >
+                            <option value="">Select genre...</option>
+                            <option value="fiction">Fiction</option>
+                            <option value="nonfiction">Non-Fiction</option>
+                            <option value="fantasy">Fantasy</option>
+                            <option value="scifi">Science Fiction</option>
+                            <option value="mystery">Mystery</option>
+                            <option value="romance">Romance</option>
+                            <option value="horror">Horror</option>
+                          </select>
+                        ) : variable.includes('language') ? (
+                          <select
+                            value={inputs[variable] || ''}
+                            onChange={(e) => handleInputChange(variable, e.target.value)}
+                            className="input-field"
+                          >
+                            <option value="">Select language style...</option>
+                            <option value="formal">Formal</option>
+                            <option value="casual">Casual</option>
+                            <option value="technical">Technical</option>
+                            <option value="conversational">Conversational</option>
+                            <option value="academic">Academic</option>
+                          </select>
                         ) : (
                           <input
                             type="text"
-                            placeholder={`Enter ${variable} (be specific for best results)`}
+                            placeholder={getPlaceholderText(variable)}
                             value={inputs[variable] || ''}
                             onChange={(e) => handleInputChange(variable, e.target.value)}
                             className="input-field"
@@ -858,25 +1043,25 @@ ${aiContent.content}`;
                       <div className="option-group">
                         <label className="checkbox-label">
                           <input type="checkbox" defaultChecked />
-                          <span>Include Industry Standards</span>
-                        </label>
-                      </div>
-                      <div className="option-group">
-                        <label className="checkbox-label">
-                          <input type="checkbox" defaultChecked />
-                          <span>Add Technical Specifications</span>
-                        </label>
-                      </div>
-                      <div className="option-group">
-                        <label className="checkbox-label">
-                          <input type="checkbox" defaultChecked />
                           <span>Include Best Practices</span>
                         </label>
                       </div>
                       <div className="option-group">
                         <label className="checkbox-label">
                           <input type="checkbox" defaultChecked />
-                          <span>Add Examples & References</span>
+                          <span>Add Technical Details</span>
+                        </label>
+                      </div>
+                      <div className="option-group">
+                        <label className="checkbox-label">
+                          <input type="checkbox" defaultChecked />
+                          <span>Include Examples</span>
+                        </label>
+                      </div>
+                      <div className="option-group">
+                        <label className="checkbox-label">
+                          <input type="checkbox" defaultChecked />
+                          <span>Optimize for AI</span>
                         </label>
                       </div>
                     </div>
