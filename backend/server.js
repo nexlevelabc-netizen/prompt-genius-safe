@@ -13,7 +13,8 @@ const HOST = '0.0.0.0'; // CRITICAL for Railway deployment
 // Configure CORS to allow frontend connection
 app.use(cors({
   origin: [
-    'https://prompt-genius-safe-production.up.railway.app', // Your frontend Railway URL
+    'https://pleasant-mindfulness-production.up.railway.app', // YOUR ACTUAL FRONTEND - ADDED
+    'https://prompt-genius-safe-production.up.railway.app', // Your old frontend Railway URL
     'https://patient-nurturing-production-903c.up.railway.app', // Your backend URL
     'http://localhost:5173', // Local development
     'http://localhost:3000', // Alternative local port
@@ -999,7 +1000,7 @@ const aiService = {
       });
 
       const response = await openai.chat.completions.create({
-        model: '-5.2', // Upgraded to -5.2 for better quality
+        model: 'gpt-5.2', // Upgraded to GPT-5.2 for better quality
         messages: [
           {
             role: 'system',
@@ -1055,6 +1056,7 @@ app.get('/', (req, res) => {
     features: '50+ Expert Templates, Professional-Grade Prompts, Industry Standards',
     categories: ['Health & Wellness', 'Image Generation', 'Business & Marketing', 'Creative Writing', 'Technology', 'Education', 'Legal & Compliance', 'Finance & Investment', 'Real Estate', 'Travel & Hospitality', 'Food & Culinary', 'Music & Audio', 'Fashion & Design', 'Gaming & Esports', 'Personal Development'],
     frontend_allowed: [
+      'https://pleasant-mindfulness-production.up.railway.app', // UPDATED
       'https://prompt-genius-safe-production.up.railway.app',
       'http://localhost:5173'
     ],
@@ -1076,7 +1078,7 @@ app.get('/api/health', (req, res) => {
     services: {
       openai: !!process.env.OPENAI_API_KEY,
       templates: Object.keys(premiumTemplates).length,
-      _version: '-5.2'
+      gpt_version: 'GPT-5.2'
     },
     professional_features: {
       expert_templates: true,
@@ -1085,6 +1087,7 @@ app.get('/api/health', (req, res) => {
       multi_domain: true
     },
     cors_allowed_origins: [
+      'https://pleasant-mindfulness-production.up.railway.app', // ADDED
       'https://prompt-genius-safe-production.up.railway.app',
       'https://patient-nurturing-production-903c.up.railway.app',
       'http://localhost:5173',
@@ -1354,10 +1357,11 @@ app.use((err, req, res, next) => {
 app.listen(PORT, HOST, () => {
   console.log(`🚀 Professional Prompt Genius Server running on http://${HOST}:${PORT}`);
   console.log(`📁 Expert Templates loaded: ${Object.keys(premiumTemplates).length}`);
-  console.log(`🔑 OpenAI Status: ${process.env.OPENAI_API_KEY ? '-4 Configured' : 'Missing API Key'}`);
+  console.log(`🔑 OpenAI Status: ${process.env.OPENAI_API_KEY ? 'GPT-5.2 Configured' : 'Missing API Key'}`);
   console.log(`🔍 Railway Health Check: http://${HOST}:${PORT}/railway-health`);
   console.log(`🌐 CORS Allowed Origins:`);
-  console.log(`   - https://prompt-genius-safe-production.up.railway.app (Frontend)`);
+  console.log(`   - https://pleasant-mindfulness-production.up.railway.app (YOUR FRONTEND)`); // UPDATED
+  console.log(`   - https://prompt-genius-safe-production.up.railway.app (Old Frontend)`);
   console.log(`   - https://patient-nurturing-production-903c.up.railway.app (Backend)`);
   console.log(`   - http://localhost:5173 (Vite Dev)`);
   console.log(`   - http://localhost:4173 (Vite Preview)`);
@@ -1370,4 +1374,3 @@ app.listen(PORT, HOST, () => {
   console.log(`🧹 Prompt Cleanup: Enabled - Removing placeholder markers from outputs`);
   console.log(`🤖 AI Model Support: Added to all Image Generation templates`);
 });
-
