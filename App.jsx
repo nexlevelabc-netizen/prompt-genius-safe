@@ -635,7 +635,7 @@ ${aiContent.content}`;
     try {
       const result = await testConnection();
       if (result.success) {
-        alert(`✅ Backend Connected!\n\nTemplates: ${result.data.services?.templates || 0}\nOpenAI: ${result.data.services?.openai ? 'Active' : 'Inactive'}\nGPT Version: ${result.data.services?.gpt_version || 'Unknown'}`);
+        alert(`✅ Backend Connected!\n\nTemplates: ${result.data.services?.templates || 0}\nOpenAI: ${result.data.services?.openai ? 'Active' : 'Inactive'}\n Version: ${result.data.services?._version || 'Unknown'}`);
         checkAPIHealth();
       } else {
         alert(`❌ Connection Failed\n\nURL: ${result.url}\nError: ${result.error}`);
@@ -667,7 +667,7 @@ ${aiContent.content}`;
           <div className="ai-status">
             <div className="status-item">
               <Bot size={16} />
-              <span>GPT-4 Expert</span>
+              <span>-5.2 Expert</span>
               <div className={`status-dot ${apiStatus.openai ? 'live' : 'offline'}`}></div>
             </div>
             <div className="expert-mode-toggle">
@@ -821,7 +821,7 @@ ${aiContent.content}`;
                 <span className="stat-label">Categories</span>
               </div>
               <div className="stat">
-                <span className="stat-number">{apiStatus.openai ? 'GPT-4' : 'Offline'}</span>
+                <span className="stat-number">{apiStatus.openai ? '-4' : 'Offline'}</span>
                 <span className="stat-label">AI Status</span>
               </div>
             </div>
@@ -904,7 +904,7 @@ ${aiContent.content}`;
                         <Brain size={20} />
                       </div>
                       <div className="stat-info">
-                        <div className="stat-value">GPT-4</div>
+                        <div className="stat-value">-4</div>
                         <div className="stat-label">AI Model</div>
                       </div>
                     </div>
@@ -947,7 +947,7 @@ ${aiContent.content}`;
                         <span className="tag subcategory">{currentTemplate.subcategory}</span>
                         <span className="tag ai">
                           <Zap size={12} />
-                          GPT-4 Optimized
+                          -4 Optimized
                         </span>
                       </div>
                     </div>
@@ -990,7 +990,7 @@ ${aiContent.content}`;
                               <option value="Stable Diffusion">Stable Diffusion (Open-source, customizable)</option>
                               <option value="Leonardo.ai">Leonardo.ai (Great for game assets)</option>
                               <option value="Adobe Firefly">Adobe Firefly (Commercial/safe content)</option>
-                              <option value="GPT-4">GPT-4 (Text generation)</option>
+                              <option value="-4">-4 (Text generation)</option>
                               <option value="Claude">Claude (Text analysis)</option>
                               <option value="Gemini">Gemini (Google AI)</option>
                             </select>
@@ -1239,7 +1239,7 @@ ${aiContent.content}`;
                           ) : (
                             <>
                               <Brain size={18} />
-                              Get GPT-4 Expert Analysis
+                              Get -4 Expert Analysis
                             </>
                           )}
                         </button>
@@ -1254,7 +1254,7 @@ ${aiContent.content}`;
                             <Brain size={18} style={{ marginRight: '8px' }} />
                             AI Expert Response
                             <span className="ai-model">
-                              {aiContent.provider === 'openai' ? 'GPT-4' : 'Gemini Pro'} • {aiContent.quality}
+                              {aiContent.provider === 'openai' ? '-4' : 'Gemini Pro'} • {aiContent.quality}
                             </span>
                           </h4>
                           <div className="result-actions">
@@ -1282,7 +1282,7 @@ ${aiContent.content}`;
 
                         <div className="result-meta expert">
                           <div className="meta-item">
-                            <strong>AI Provider:</strong> {aiContent.provider === 'openai' ? 'GPT-4 Turbo' : 'Gemini Pro'}
+                            <strong>AI Provider:</strong> {aiContent.provider === 'openai' ? '-4 Turbo' : 'Gemini Pro'}
                           </div>
                           {aiContent.wordCount && (
                             <div className="meta-item">
@@ -1331,7 +1331,7 @@ ${aiContent.content}`;
                   <Brain size={20} />
                 </div>
                 <div className="stat-info">
-                  <div className="stat-value">{apiStatus.openai ? 'GPT-4' : 'Offline'}</div>
+                  <div className="stat-value">{apiStatus.openai ? '-4' : 'Offline'}</div>
                   <div className="stat-label">AI Engine</div>
                 </div>
               </div>
