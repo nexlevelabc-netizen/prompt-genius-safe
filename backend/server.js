@@ -999,7 +999,7 @@ const aiService = {
       });
 
       const response = await openai.chat.completions.create({
-        model: 'gpt-4', // Upgraded to GPT-4 for better quality
+        model: '-5.2', // Upgraded to -5.2 for better quality
         messages: [
           {
             role: 'system',
@@ -1076,7 +1076,7 @@ app.get('/api/health', (req, res) => {
     services: {
       openai: !!process.env.OPENAI_API_KEY,
       templates: Object.keys(premiumTemplates).length,
-      gpt_version: 'GPT-4'
+      _version: '-5.2'
     },
     professional_features: {
       expert_templates: true,
@@ -1354,7 +1354,7 @@ app.use((err, req, res, next) => {
 app.listen(PORT, HOST, () => {
   console.log(`🚀 Professional Prompt Genius Server running on http://${HOST}:${PORT}`);
   console.log(`📁 Expert Templates loaded: ${Object.keys(premiumTemplates).length}`);
-  console.log(`🔑 OpenAI Status: ${process.env.OPENAI_API_KEY ? 'GPT-4 Configured' : 'Missing API Key'}`);
+  console.log(`🔑 OpenAI Status: ${process.env.OPENAI_API_KEY ? '-4 Configured' : 'Missing API Key'}`);
   console.log(`🔍 Railway Health Check: http://${HOST}:${PORT}/railway-health`);
   console.log(`🌐 CORS Allowed Origins:`);
   console.log(`   - https://prompt-genius-safe-production.up.railway.app (Frontend)`);
@@ -1370,3 +1370,4 @@ app.listen(PORT, HOST, () => {
   console.log(`🧹 Prompt Cleanup: Enabled - Removing placeholder markers from outputs`);
   console.log(`🤖 AI Model Support: Added to all Image Generation templates`);
 });
+
