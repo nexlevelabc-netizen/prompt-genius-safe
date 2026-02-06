@@ -69,7 +69,7 @@ import {
 import './App.css';
 
 // Import dropdown options
-import { dropdownOptions } from './constants/dropdownOptions.js';
+import { dropdownOptions, getOptionsForVariable } from './constants/dropdownOptions.js';
 
 function App() {
   // Enhanced Google Fonts with premium options
@@ -337,48 +337,54 @@ function App() {
 
   // Helper function to get appropriate dropdown options based on variable name and template category
   const getDropdownOptions = (variable, templateCategory) => {
+    // Make sure dropdownOptions exists
+    if (!dropdownOptions || typeof dropdownOptions !== 'object') {
+      console.error('dropdownOptions is not properly defined:', dropdownOptions);
+      return [];
+    }
+
     // Image Generation variables
     if (variable.includes('style') && templateCategory?.includes('Image')) {
-      return dropdownOptions.imageStyles;
+      return dropdownOptions.imageStyles || [];
     }
     if (variable.includes('color') && (variable.includes('palette') || variable.includes('mood'))) {
-      return dropdownOptions.colorPalettes;
+      return dropdownOptions.colorPalettes || [];
     }
     if (variable.includes('resolution') && !variable.includes('video')) {
-      return dropdownOptions.imageResolutions;
+      return dropdownOptions.imageResolutions || [];
     }
     if (variable.includes('lighting')) {
-      return dropdownOptions.lightingOptions;
+      return dropdownOptions.lightingOptions || [];
     }
     
     // Video Generation variables
     if (variable.includes('video_style')) {
-      return dropdownOptions.videoStyles;
+      return dropdownOptions.videoStyles || [];
     }
     if (variable.includes('video_resolution')) {
-      return dropdownOptions.videoResolutions;
+      return dropdownOptions.videoResolutions || [];
     }
     if (variable.includes('frame_rate')) {
-      return dropdownOptions.frameRates;
+      return dropdownOptions.frameRates || [];
     }
     if (variable.includes('aspect_ratio')) {
-      return dropdownOptions.aspectRatios;
+      return dropdownOptions.aspectRatios || [];
     }
     
     // Business/Marketing variables
     if (variable.includes('tone') && templateCategory?.includes('Business')) {
-      return dropdownOptions.businessTones;
+      return dropdownOptions.businessTones || [];
     }
     
     // General variables
     if (variable.includes('level') || variable.includes('complexity') || variable.includes('difficulty')) {
-      return dropdownOptions.expertiseLevels;
+      return dropdownOptions.expertiseLevels || [];
     }
     if (variable.includes('length') || variable.includes('duration')) {
-      return dropdownOptions.lengths;
+      return dropdownOptions.lengths || [];
     }
     if (variable.includes('writing_style')) {
-      return dropdownOptions.writingStyles;
+      return dropdownOptions.writingStyles || [];
     }
     
     return [];
@@ -686,57 +692,71 @@ ${aiContent.content}`;
 
   // Render input field based on variable type
   const renderInputField = (variable) => {
-    const dropdownOptions = getDropdownOptions(variable, currentTemplate?.category);
-    const hasDropdown = dropdownOptions.length > 0;
-    
-    // Special handling for AI model selection
-    if (variable === 'ai_model' || variable === 'video_ai_model') {
-      const platforms = variable === 'video_ai_model' 
-        ? dropdownOptions.aiPlatforms.video 
-        : dropdownOptions.aiPlatforms.image;
+    try {
+      const dropdownOptionsList = getDropdownOptions(variable, currentTemplate?.category);
+      const hasDropdown = dropdownOptionsList.length > 0;
       
+      // Special handling for AI model selection
+      if (variable === 'ai_model' || variable === 'video_ai_model') {
+        const platforms = dropdownOptions.aiPlatforms || {};
+        const platformList = variable === 'video_ai_model' 
+          ? platforms.video || [] 
+          : platforms.image || [];
+        
+        return (
+          <select
+            value={inputs[variable] || ''}
+            onChange={(e) => handleInputChange(variable, e.target.value)}
+            className="input-field"
+          >
+            <option value="">Select AI platform...</option>
+            {platformList.map(platform => (
+              <option key={platform.value} value={platform.value}>
+                {platform.label}
+              </option>
+            ))}
+          </select>
+        );
+      }
+      
+      // Dropdown fields
+      if (hasDropdown) {
+        return (
+          <select
+            value={inputs[variable] || ''}
+            onChange={(e) => handleInputChange(variable, e.target.value)}
+            className="input-field"
+          >
+            <option value="">Select {formatVariableLabel(variable).toLowerCase()}...</option>
+            {dropdownOptionsList.map(option => (
+              <option key={option} value={option}>{option}</option>
+            ))}
+          </select>
+        );
+      }
+      
+      // Text input for Main Subject and other free-text fields
       return (
-        <select
+        <input
+          type="text"
+          placeholder={getPlaceholderText(variable)}
           value={inputs[variable] || ''}
           onChange={(e) => handleInputChange(variable, e.target.value)}
           className="input-field"
-        >
-          <option value="">Select AI platform...</option>
-          {platforms.map(platform => (
-            <option key={platform.value} value={platform.value}>
-              {platform.label}
-            </option>
-          ))}
-        </select>
+        />
       );
-    }
-    
-    // Dropdown fields
-    if (hasDropdown) {
+    } catch (error) {
+      console.error('Error in renderInputField:', error, 'for variable:', variable);
       return (
-        <select
+        <input
+          type="text"
+          placeholder={`Error loading field: ${variable}`}
           value={inputs[variable] || ''}
           onChange={(e) => handleInputChange(variable, e.target.value)}
           className="input-field"
-        >
-          <option value="">Select {formatVariableLabel(variable).toLowerCase()}...</option>
-          {dropdownOptions.map(option => (
-            <option key={option} value={option}>{option}</option>
-          ))}
-        </select>
+        />
       );
     }
-    
-    // Text input for Main Subject and other free-text fields
-    return (
-      <input
-        type="text"
-        placeholder={getPlaceholderText(variable)}
-        value={inputs[variable] || ''}
-        onChange={(e) => handleInputChange(variable, e.target.value)}
-        className="input-field"
-      />
-    );
   };
 
   return (
