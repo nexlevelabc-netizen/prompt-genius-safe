@@ -620,31 +620,31 @@ ${aiContent.content}`;
     URL.revokeObjectURL(url);
   };
 
-  // Function to render AI content with beautiful formatting
+  // Function to render AI content with beautiful formatting - PRESERVED
   const renderAIContent = (content) => {
     if (!content) return content;
     
-    // Convert markdown-style formatting to HTML
+    // Convert markdown-style formatting to HTML with enhanced professional styling
     const formattedContent = content
-      // Headers
+      // Headers - Enhanced with professional styling
       .replace(/^# (.*$)/gim, '<h1 class="ai-header">$1</h1>')
       .replace(/^## (.*$)/gim, '<h2 class="ai-subheader">$1</h2>')
       .replace(/^### (.*$)/gim, '<h3 class="ai-subsubheader">$1</h3>')
       .replace(/^#### (.*$)/gim, '<h4 class="ai-section">$1</h4>')
-      // Bold
+      // Bold - Enhanced
       .replace(/\*\*(.*?)\*\*/gim, '<strong class="ai-bold">$1</strong>')
-      // Italic
+      // Italic - Enhanced
       .replace(/\*(.*?)\*/gim, '<em class="ai-italic">$1</em>')
-      // Lists
+      // Lists - Enhanced with professional bullets and numbers
       .replace(/^\* (.*$)/gim, '<li class="ai-list-item">$1</li>')
       .replace(/^- (.*$)/gim, '<li class="ai-list-item">$1</li>')
       .replace(/^(\d+)\. (.*$)/gim, '<li class="ai-ordered-item">$1. $2</li>')
-      // Code blocks
+      // Code blocks - Enhanced
       .replace(/```([\s\S]*?)```/g, '<pre class="ai-code-block"><code>$1</code></pre>')
       .replace(/`(.*?)`/g, '<code class="ai-inline-code">$1</code>')
-      // Blockquotes
+      // Blockquotes - Enhanced
       .replace(/^> (.*$)/gim, '<blockquote class="ai-blockquote">$1</blockquote>')
-      // Line breaks
+      // Line breaks - Professional spacing
       .replace(/\n\n/g, '</p><p class="ai-paragraph">')
       .replace(/\n/g, '<br>');
     
@@ -653,7 +653,7 @@ ${aiContent.content}`;
       return `<p class="ai-paragraph">${formattedContent}</p>`;
     }
     
-    // Wrap loose list items in ul/ol
+    // Wrap loose list items in ul/ol with enhanced styling
     let withLists = formattedContent;
     const listItemRegex = /<li class="ai-list-item">(.*?)<\/li>/g;
     const listMatches = [...withLists.matchAll(listItemRegex)];
@@ -693,12 +693,6 @@ ${aiContent.content}`;
   // Mobile sidebar toggle with auto-close
   const toggleMobileSidebar = () => {
     setSidebarOpen(!sidebarOpen);
-    // Auto-close on mobile when clicking outside
-    if (window.innerWidth <= 1024 && sidebarOpen) {
-      setTimeout(() => {
-        setSidebarOpen(false);
-      }, 300);
-    }
   };
 
   // Mobile template selection handler
@@ -708,18 +702,6 @@ ${aiContent.content}`;
     // Auto-close sidebar on mobile when selecting a template
     if (window.innerWidth <= 1024) {
       setSidebarOpen(false);
-    }
-  };
-
-  // Mobile category selection handler
-  const handleCategorySelect = (category) => {
-    setSelectedCategory(category);
-    setExpandedSection('templates');
-    // Auto-close sidebar on mobile
-    if (window.innerWidth <= 1024 && sidebarOpen) {
-      setTimeout(() => {
-        setSidebarOpen(false);
-      }, 300);
     }
   };
 
@@ -799,7 +781,7 @@ ${aiContent.content}`;
         <div className="header-content">
           <button 
             className="menu-toggle"
-            onClick={toggleMobileSidebar}
+            onClick={() => setSidebarOpen(!sidebarOpen)}
             aria-label={sidebarOpen ? "Close menu" : "Open menu"}
           >
             {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
@@ -866,7 +848,10 @@ ${aiContent.content}`;
               <button
                 key={category}
                 className={`category-tab ${selectedCategory === category ? 'active' : ''}`}
-                onClick={() => handleCategorySelect(category)}
+                onClick={() => {
+                  setSelectedCategory(category);
+                  setExpandedSection('templates');
+                }}
               >
                 {getCategoryIcon(category)}
                 <span>{category.split(' ')[0]}</span>
@@ -877,7 +862,10 @@ ${aiContent.content}`;
               <div className="dropdown-categories">
                 <select
                   value={selectedCategory}
-                  onChange={(e) => handleCategorySelect(e.target.value)}
+                  onChange={(e) => {
+                    setSelectedCategory(e.target.value);
+                    setExpandedSection('templates');
+                  }}
                   className="category-select"
                 >
                   {categories.map(category => (
