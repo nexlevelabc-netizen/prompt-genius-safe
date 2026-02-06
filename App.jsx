@@ -690,6 +690,39 @@ ${aiContent.content}`;
     }
   };
 
+  // Mobile sidebar toggle with auto-close
+  const toggleMobileSidebar = () => {
+    setSidebarOpen(!sidebarOpen);
+    // Auto-close on mobile when clicking outside
+    if (window.innerWidth <= 1024 && sidebarOpen) {
+      setTimeout(() => {
+        setSidebarOpen(false);
+      }, 300);
+    }
+  };
+
+  // Mobile template selection handler
+  const handleTemplateSelect = (templateId) => {
+    setSelectedTemplate(templateId);
+    setExpandedSection('customize');
+    // Auto-close sidebar on mobile when selecting a template
+    if (window.innerWidth <= 1024) {
+      setSidebarOpen(false);
+    }
+  };
+
+  // Mobile category selection handler
+  const handleCategorySelect = (category) => {
+    setSelectedCategory(category);
+    setExpandedSection('templates');
+    // Auto-close sidebar on mobile
+    if (window.innerWidth <= 1024 && sidebarOpen) {
+      setTimeout(() => {
+        setSidebarOpen(false);
+      }, 300);
+    }
+  };
+
   // Render input field based on variable type
   const renderInputField = (variable) => {
     try {
@@ -766,9 +799,11 @@ ${aiContent.content}`;
         <div className="header-content">
           <button 
             className="menu-toggle"
-            onClick={() => setSidebarOpen(!sidebarOpen)}
+            onClick={toggleMobileSidebar}
+            aria-label={sidebarOpen ? "Close menu" : "Open menu"}
           >
             {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
+            <span className="menu-label">Menu</span>
           </button>
           
           <div className="logo">
@@ -811,12 +846,14 @@ ${aiContent.content}`;
               <button 
                 className={`view-btn ${viewMode === 'grid' ? 'active' : ''}`}
                 onClick={() => setViewMode('grid')}
+                aria-label="Grid view"
               >
                 <Grid size={16} />
               </button>
               <button 
                 className={`view-btn ${viewMode === 'list' ? 'active' : ''}`}
                 onClick={() => setViewMode('list')}
+                aria-label="List view"
               >
                 <List size={16} />
               </button>
@@ -829,10 +866,7 @@ ${aiContent.content}`;
               <button
                 key={category}
                 className={`category-tab ${selectedCategory === category ? 'active' : ''}`}
-                onClick={() => {
-                  setSelectedCategory(category);
-                  setExpandedSection('templates');
-                }}
+                onClick={() => handleCategorySelect(category)}
               >
                 {getCategoryIcon(category)}
                 <span>{category.split(' ')[0]}</span>
@@ -843,10 +877,7 @@ ${aiContent.content}`;
               <div className="dropdown-categories">
                 <select
                   value={selectedCategory}
-                  onChange={(e) => {
-                    setSelectedCategory(e.target.value);
-                    setExpandedSection('templates');
-                  }}
+                  onChange={(e) => handleCategorySelect(e.target.value)}
                   className="category-select"
                 >
                   {categories.map(category => (
@@ -868,11 +899,13 @@ ${aiContent.content}`;
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="search-input"
+              aria-label="Search templates"
             />
             {searchQuery && (
               <button 
                 className="clear-search"
                 onClick={() => setSearchQuery('')}
+                aria-label="Clear search"
               >
                 <X size={16} />
               </button>
@@ -886,9 +919,13 @@ ${aiContent.content}`;
                 <div
                   key={template.id}
                   className={`template-card ${selectedTemplate === template.id ? 'selected' : ''} ${template.expert_level === 'Professional' ? 'premium' : ''}`}
-                  onClick={() => {
-                    setSelectedTemplate(template.id);
-                    setExpandedSection('customize');
+                  onClick={() => handleTemplateSelect(template.id)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      handleTemplateSelect(template.id);
+                    }
                   }}
                 >
                   <div className="template-icon">
@@ -968,6 +1005,13 @@ ${aiContent.content}`;
               <div 
                 className="section-header"
                 onClick={() => setExpandedSection(expandedSection === 'templates' ? null : 'templates')}
+                role="button"
+                tabIndex={0}
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    setExpandedSection(expandedSection === 'templates' ? null : 'templates');
+                  }
+                }}
               >
                 <h3>
                   <Layers className="icon" />
@@ -1031,6 +1075,13 @@ ${aiContent.content}`;
               <div 
                 className="section-header"
                 onClick={() => setExpandedSection(expandedSection === 'customize' ? null : 'customize')}
+                role="button"
+                tabIndex={0}
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    setExpandedSection(expandedSection === 'customize' ? null : 'customize');
+                  }
+                }}
               >
                 <h3>
                   <PenTool className="icon" />
@@ -1178,6 +1229,13 @@ ${aiContent.content}`;
                 <div 
                   className="section-header"
                   onClick={() => setExpandedSection(expandedSection === 'results' ? null : 'results')}
+                  role="button"
+                  tabIndex={0}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      setExpandedSection(expandedSection === 'results' ? null : 'results');
+                    }
+                  }}
                 >
                   <h3>
                     <Sparkles className="icon" />
@@ -1387,6 +1445,7 @@ ${aiContent.content}`;
           onClick={testBackendConnection}
           className={`connection-btn ${connectionStatus}`}
           title="Test Backend Connection"
+          aria-label="Test connection"
         >
           {connectionStatus === 'connected' ? (
             <Check size={16} />
