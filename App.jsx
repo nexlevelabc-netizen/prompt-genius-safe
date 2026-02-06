@@ -182,21 +182,21 @@ function App() {
     }));
   };
 
-  // Enhanced input label formatter - converts snake_case to readable text
+  // Enhanced input label formatter - converts snake_case to readable text WITHOUT slashes
   const formatVariableLabel = (variable) => {
     const labelMap = {
-      // Medical/Health
+      // Medical/Health - NO SLASHES
       'presentation': 'Describe the Symptoms',
       'diagnosis_considerations': 'Possible Causes to Consider',
       'treatment_approach': 'Suggested Treatment Plan',
-      'monitoring': 'What to Watch For (Follow-up)',
+      'monitoring': 'What to Watch For Follow up',
       'red_flags': 'Urgent Warning Signs',
       'complexity': 'Case Difficulty Level',
       'condition': 'Main Medical Condition',
       'demographic': 'Patient Information',
-      'tone': 'Output Tone / Style',
+      'tone': 'Output Tone and Style', // Changed / to and
       
-      // Business/Marketing
+      // Business and Marketing - NO SLASHES
       'target_audience': 'Target Audience',
       'product_service': 'Product or Service',
       'key_benefits': 'Key Benefits',
@@ -208,19 +208,19 @@ function App() {
       'genre': 'Genre',
       'plot_summary': 'Plot Summary',
       'character_descriptions': 'Character Descriptions',
-      'setting': 'Setting/Location',
-      'theme': 'Theme/Mood',
+      'setting': 'Setting and Location', // Changed / to and
+      'theme': 'Theme and Mood', // Changed / to and
       'writing_style': 'Writing Style',
       
       // Image Generation
       'subject': 'Main Subject',
       'style': 'Art Style',
       'color_palette': 'Color Palette',
-      'composition': 'Composition/Layout',
+      'composition': 'Composition and Layout', // Changed / to and
       'lighting': 'Lighting',
-      'mood': 'Mood/Atmosphere',
-      'ai_model': 'AI Platform / Model',
-      'resolution': 'Resolution / Quality',
+      'mood': 'Mood and Atmosphere', // Changed / to and
+      'ai_model': 'AI Platform and Model', // Changed / to and
+      'resolution': 'Resolution and Quality', // Changed / to and
       
       // Video Generation
       'video_subject': 'Video Subject',
@@ -231,18 +231,18 @@ function App() {
       'video_resolution': 'Video Resolution',
       'video_ai_model': 'Video AI Platform',
       
-      // General/Common
+      // General and Common
       'topic': 'Topic',
       'audience': 'Intended Audience',
-      'purpose': 'Purpose/Goal',
+      'purpose': 'Purpose and Goal', // Changed / to and
       'key_points': 'Key Points to Include',
       'format': 'Output Format',
       'length': 'Desired Length',
-      'examples': 'Examples/References',
+      'examples': 'Examples and References', // Changed / to and
       'level': 'Expertise Level',
-      'language': 'Language/Tone',
+      'language': 'Language and Tone', // Changed / to and
       'requirements': 'Specific Requirements',
-      'constraints': 'Limitations/Constraints',
+      'constraints': 'Limitations and Constraints', // Changed / to and
       'goals': 'Desired Outcomes',
       'metrics': 'Success Metrics'
     };
@@ -251,87 +251,88 @@ function App() {
       return labelMap[variable];
     }
 
-    // Fallback: convert snake_case to readable text
+    // Fallback: convert snake_case to readable text WITHOUT slashes
     return variable
       .replace(/_/g, ' ')
       .replace(/\b\w/g, char => char.toUpperCase())
       .replace(/\bai\b/gi, 'AI')
-      .replace(/\bapi\b/gi, 'API');
+      .replace(/\bapi\b/gi, 'API')
+      .replace(/\//g, ' and '); // Replace any remaining slashes with "and"
   };
 
-  // Enhanced placeholder text generator
+  // Enhanced placeholder text generator WITHOUT slashes
   const getPlaceholderText = (variable) => {
     const placeholderMap = {
       // Medical/Health
-      'presentation': 'Describe how the condition looks/feels. Be detailed.',
+      'presentation': 'Describe how the condition looks and feels. Be detailed.',
       'diagnosis_considerations': 'List possible conditions to analyze.',
       'treatment_approach': 'Describe the recommended care steps.',
       'monitoring': 'List signs of improvement or worsening to track.',
       'red_flags': 'List symptoms that require immediate attention.',
-      'condition': 'e.g., "swelling in left ankle"',
-      'demographic': 'e.g., "45-year-old male"',
+      'condition': 'Example swelling in left ankle',
+      'demographic': 'Example 45 year old male',
       
-      // Business/Marketing
+      // Business and Marketing
       'target_audience': 'Describe your ideal customer or audience.',
       'product_service': 'Briefly describe what you offer.',
       'key_benefits': 'List main benefits or features.',
-      'call_to_action': 'What should the audience do next?',
-      'unique_selling_proposition': 'What makes you different?',
+      'call_to_action': 'What should the audience do next',
+      'unique_selling_proposition': 'What makes you different',
       'brand_voice': 'Describe your brand personality.',
       
       // Creative
       'plot_summary': 'Brief overview of the story.',
       'character_descriptions': 'Describe main characters.',
-      'setting': 'Where and when does this take place?',
-      'theme': 'What mood or message do you want?',
+      'setting': 'Where and when does this take place',
+      'theme': 'What mood or message do you want',
       'writing_style': 'Describe the writing approach.',
       
       // Image Generation
-      'subject': 'What is the main focus? Be specific for best results.',
-      'style': 'Select artistic style...',
-      'color_palette': 'Select color palette...',
-      'composition': 'e.g., "close-up, wide shot, portrait"',
-      'lighting': 'Select lighting style...',
-      'mood': 'e.g., "mysterious, joyful, peaceful"',
-      'ai_model': 'Select AI platform...',
-      'resolution': 'Select resolution quality...',
+      'subject': 'What is the main focus. Be specific for best results.',
+      'style': 'Select artistic style',
+      'color_palette': 'Select color palette',
+      'composition': 'Example close up, wide shot, portrait',
+      'lighting': 'Select lighting style',
+      'mood': 'Example mysterious, joyful, peaceful',
+      'ai_model': 'Select AI platform',
+      'resolution': 'Select resolution quality',
       
       // Video Generation
       'video_subject': 'Describe the scene or action for your video.',
-      'video_style': 'Select video style...',
-      'video_length': 'Select video length...',
-      'aspect_ratio': 'Select aspect ratio...',
-      'frame_rate': 'Select frame rate...',
-      'video_resolution': 'Select video resolution...',
-      'video_ai_model': 'Select video AI platform...',
+      'video_style': 'Select video style',
+      'video_length': 'Select video length',
+      'aspect_ratio': 'Select aspect ratio',
+      'frame_rate': 'Select frame rate',
+      'video_resolution': 'Select video resolution',
+      'video_ai_model': 'Select video AI platform',
       
       // General
-      'topic': 'What is this about?',
-      'audience': 'Who will read/see this?',
-      'purpose': 'What should this achieve?',
-      'key_points': 'What must be included?',
+      'topic': 'What is this about',
+      'audience': 'Who will read or see this',
+      'purpose': 'What should this achieve',
+      'key_points': 'What must be included',
       'examples': 'Provide examples for reference.',
-      'requirements': 'Any special needs?',
-      'constraints': 'Any limitations to consider?',
-      'goals': 'What are you trying to accomplish?',
-      'metrics': 'How will you measure success?'
+      'requirements': 'Any special needs',
+      'constraints': 'Any limitations to consider',
+      'goals': 'What are you trying to accomplish',
+      'metrics': 'How will you measure success'
     };
 
     if (placeholderMap[variable]) {
       return placeholderMap[variable];
     }
 
-    // Fallback based on variable type
+    // Fallback based on variable type WITHOUT slashes
     if (variable.includes('tone') || variable.includes('style') || variable.includes('voice')) {
-      return 'Select the appropriate tone...';
+      return 'Select the appropriate tone';
     } else if (variable.includes('level') || variable.includes('complexity') || variable.includes('difficulty')) {
-      return 'Select expertise level...';
+      return 'Select expertise level';
     } else if (variable.includes('length') || variable.includes('duration') || variable.includes('time')) {
-      return 'Select desired length...';
+      return 'Select desired length';
     } else if (variable.includes('type') || variable.includes('format') || variable.includes('category')) {
-      return 'Select from options...';
+      return 'Select from options';
     } else {
-      return `Enter ${variable.replace(/_/g, ' ')}...`;
+      return `Enter ${variable.replace(/_/g, ' ')}`;
     }
   };
 
@@ -371,7 +372,7 @@ function App() {
       return dropdownOptions.aspectRatios || [];
     }
     
-    // Business/Marketing variables
+    // Business and Marketing variables
     if (variable.includes('tone') && templateCategory?.includes('Business')) {
       return dropdownOptions.businessTones || [];
     }
@@ -410,19 +411,19 @@ function App() {
   // Enhanced category icons mapping
   const getCategoryIcon = (category) => {
     const icons = {
-      'Health & Wellness': <Heart size={18} className="category-icon" />,
+      'Health and Wellness': <Heart size={18} className="category-icon" />,
       'Image Generation': <Camera size={18} className="category-icon" />,
-      'Business & Marketing': <Briefcase size={18} className="category-icon" />,
+      'Business and Marketing': <Briefcase size={18} className="category-icon" />,
       'Creative Writing': <PenTool size={18} className="category-icon" />,
       'Technology': <Code size={18} className="category-icon" />,
-      'Legal & Compliance': <Scale size={18} className="category-icon" />,
-      'Finance & Investment': <DollarSign size={18} className="category-icon" />,
+      'Legal and Compliance': <Scale size={18} className="category-icon" />,
+      'Finance and Investment': <DollarSign size={18} className="category-icon" />,
       'Real Estate': <Home size={18} className="category-icon" />,
-      'Travel & Hospitality': <Plane size={18} className="category-icon" />,
-      'Food & Culinary': <Coffee size={18} className="category-icon" />,
-      'Music & Audio': <MusicIcon size={18} className="category-icon" />,
-      'Fashion & Design': <Palette size={18} className="category-icon" />,
-      'Gaming & Esports': <GamepadIcon size={18} className="category-icon" />,
+      'Travel and Hospitality': <Plane size={18} className="category-icon" />,
+      'Food and Culinary': <Coffee size={18} className="category-icon" />,
+      'Music and Audio': <MusicIcon size={18} className="category-icon" />,
+      'Fashion and Design': <Palette size={18} className="category-icon" />,
+      'Gaming and Esports': <GamepadIcon size={18} className="category-icon" />,
       'Education': <GraduationCap size={18} className="category-icon" />,
       'Creative Content': <VideoIcon size={18} className="category-icon" />,
       'Personal Development': <UserCheck size={18} className="category-icon" />,
@@ -434,7 +435,7 @@ function App() {
 
   const generatePrompt = async () => {
     if (!selectedTemplate) {
-      alert('Please select a template first!');
+      alert('Please select a template first');
       return;
     }
 
@@ -477,7 +478,7 @@ function App() {
 
   const generateAIResponse = async () => {
     if (!generatedPrompt?.prompt) {
-      alert('Please generate a prompt first!');
+      alert('Please generate a prompt first');
       return;
     }
     
@@ -511,7 +512,7 @@ function App() {
 
   const generateCompleteWorkflow = async () => {
     if (!selectedTemplate) {
-      alert('Please select a template first!');
+      alert('Please select a template first');
       return;
     }
 
@@ -578,9 +579,9 @@ function App() {
   const exportPrompt = () => {
     if (!generatedPrompt) return;
     
-    const content = `PROMPT GENIUS - EXPERT PROMPT
+    const content = `PROMPT GENIUS EXPERT PROMPT
 Template: ${generatedPrompt.template}
-Category: ${generatedPrompt.category} > ${generatedPrompt.subcategory}
+Category: ${generatedPrompt.category} ${generatedPrompt.subcategory}
 Expert Level: ${generatedPrompt.expert_level}
 Generated: ${new Date().toISOString()}
 
@@ -600,7 +601,7 @@ ${generatedPrompt.prompt}`;
   const exportAIContent = () => {
     if (!aiContent) return;
     
-    const content = `PROMPT GENIUS - AI EXPERT RESPONSE
+    const content = `PROMPT GENIUS AI EXPERT RESPONSE
 Provider: ${aiContent.provider}
 Quality: ${aiContent.quality}
 Tokens: ${aiContent.tokens}
@@ -620,40 +621,41 @@ ${aiContent.content}`;
     URL.revokeObjectURL(url);
   };
 
-  // Function to render AI content with beautiful formatting - PRESERVED
+  // Function to render AI content with beautiful formatting WITHOUT dashes
   const renderAIContent = (content) => {
     if (!content) return content;
     
-    // Convert markdown-style formatting to HTML with enhanced professional styling
+    // Convert markdown-style formatting to HTML WITHOUT DASHES
     const formattedContent = content
-      // Headers - Enhanced with professional styling
+      // Headers
       .replace(/^# (.*$)/gim, '<h1 class="ai-header">$1</h1>')
       .replace(/^## (.*$)/gim, '<h2 class="ai-subheader">$1</h2>')
       .replace(/^### (.*$)/gim, '<h3 class="ai-subsubheader">$1</h3>')
       .replace(/^#### (.*$)/gim, '<h4 class="ai-section">$1</h4>')
-      // Bold - Enhanced
+      // Bold
       .replace(/\*\*(.*?)\*\*/gim, '<strong class="ai-bold">$1</strong>')
-      // Italic - Enhanced
+      // Italic
       .replace(/\*(.*?)\*/gim, '<em class="ai-italic">$1</em>')
-      // Lists - Enhanced with professional bullets and numbers
-      .replace(/^\* (.*$)/gim, '<li class="ai-list-item">$1</li>')
-      .replace(/^- (.*$)/gim, '<li class="ai-list-item">$1</li>')
+      // Lists - NO DASHES, use numbers or bullets
+      .replace(/^[*-] (.*$)/gim, '<li class="ai-list-item">• $1</li>') // Use bullet instead of dash
       .replace(/^(\d+)\. (.*$)/gim, '<li class="ai-ordered-item">$1. $2</li>')
-      // Code blocks - Enhanced
+      // Code blocks
       .replace(/```([\s\S]*?)```/g, '<pre class="ai-code-block"><code>$1</code></pre>')
       .replace(/`(.*?)`/g, '<code class="ai-inline-code">$1</code>')
-      // Blockquotes - Enhanced
+      // Blockquotes
       .replace(/^> (.*$)/gim, '<blockquote class="ai-blockquote">$1</blockquote>')
-      // Line breaks - Professional spacing
+      // Line breaks
       .replace(/\n\n/g, '</p><p class="ai-paragraph">')
-      .replace(/\n/g, '<br>');
+      .replace(/\n/g, '<br>')
+      // Remove any remaining dashes at start of lines
+      .replace(/^- /gm, '• ');
     
     // Wrap in paragraph if no HTML tags yet
     if (!formattedContent.includes('<')) {
       return `<p class="ai-paragraph">${formattedContent}</p>`;
     }
     
-    // Wrap loose list items in ul/ol with enhanced styling
+    // Wrap loose list items in ul/ol
     let withLists = formattedContent;
     const listItemRegex = /<li class="ai-list-item">(.*?)<\/li>/g;
     const listMatches = [...withLists.matchAll(listItemRegex)];
@@ -679,7 +681,7 @@ ${aiContent.content}`;
     try {
       const result = await testConnection();
       if (result.success) {
-        alert(`✅ Backend Connected!\n\nTemplates: ${result.data.services?.templates || 0}\nOpenAI: ${result.data.services?.openai ? 'Active' : 'Inactive'}\nGPT Version: ${result.data.services?.gpt_version || 'Unknown'}`);
+        alert(`✅ Backend Connected\n\nTemplates: ${result.data.services?.templates || 0}\nOpenAI: ${result.data.services?.openai ? 'Active' : 'Inactive'}\nGPT Version: ${result.data.services?.gpt_version || 'Unknown'}`);
         checkAPIHealth();
       } else {
         alert(`❌ Connection Failed\n\nURL: ${result.url}\nError: ${result.error}`);
@@ -724,7 +726,7 @@ ${aiContent.content}`;
             onChange={(e) => handleInputChange(variable, e.target.value)}
             className="input-field"
           >
-            <option value="">Select AI platform...</option>
+            <option value="">Select AI platform</option>
             {platformList.map(platform => (
               <option key={platform.value} value={platform.value}>
                 {platform.label}
@@ -742,7 +744,7 @@ ${aiContent.content}`;
             onChange={(e) => handleInputChange(variable, e.target.value)}
             className="input-field"
           >
-            <option value="">Select {formatVariableLabel(variable).toLowerCase()}...</option>
+            <option value="">Select {formatVariableLabel(variable).toLowerCase()}</option>
             {dropdownOptionsList.map(option => (
               <option key={option} value={option}>{option}</option>
             ))}
@@ -797,7 +799,7 @@ ${aiContent.content}`;
           <div className="ai-status">
             <div className="status-item">
               <Bot size={16} />
-              <span>GPT-5.2 Expert</span>
+              <span>GPT 5.2 Expert</span>
               <div className={`status-dot ${apiStatus.openai ? 'live' : 'offline'}`}></div>
             </div>
             <div className="expert-mode-toggle">
@@ -883,7 +885,7 @@ ${aiContent.content}`;
             <Search size={18} />
             <input
               type="text"
-              placeholder="Search expert templates..."
+              placeholder="Search expert templates"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="search-input"
@@ -959,7 +961,7 @@ ${aiContent.content}`;
                 <span className="stat-label">Categories</span>
               </div>
               <div className="stat">
-                <span className="stat-number">{apiStatus.openai ? 'GPT-5.2' : 'Offline'}</span>
+                <span className="stat-number">{apiStatus.openai ? 'GPT 5.2' : 'Offline'}</span>
                 <span className="stat-label">AI Status</span>
               </div>
             </div>
@@ -972,14 +974,14 @@ ${aiContent.content}`;
           {connectionStatus === 'checking' && (
             <div className="connection-banner checking">
               <RefreshCw className="spinner-icon" size={16} />
-              <span>Checking backend connection...</span>
+              <span>Checking backend connection</span>
             </div>
           )}
           
           {connectionStatus === 'disconnected' && (
             <div className="connection-banner disconnected">
               <X size={16} />
-              <span>Backend connection failed. </span>
+              <span>Backend connection failed</span>
               <button onClick={testBackendConnection} className="retry-btn">
                 Retry
               </button>
@@ -1049,7 +1051,7 @@ ${aiContent.content}`;
                         <Brain size={20} />
                       </div>
                       <div className="stat-info">
-                        <div className="stat-value">GPT-5.2</div>
+                        <div className="stat-value">GPT 5.2</div>
                         <div className="stat-label">AI Model</div>
                       </div>
                     </div>
@@ -1099,7 +1101,7 @@ ${aiContent.content}`;
                         <span className="tag subcategory">{currentTemplate.subcategory}</span>
                         <span className="tag ai">
                           <Zap size={12} />
-                          GPT-5.2 Optimized
+                          GPT 5.2 Optimized
                         </span>
                       </div>
                     </div>
@@ -1107,7 +1109,7 @@ ${aiContent.content}`;
                     
                     <div className="template-complexity">
                       <div className="complexity-indicator">
-                        <span>Complexity:</span>
+                        <span>Complexity</span>
                         <div className="complexity-bar">
                           <div className="complexity-fill" style={{ width: '75%' }}></div>
                         </div>
@@ -1130,8 +1132,8 @@ ${aiContent.content}`;
                              variable.includes('language') || variable.includes('ai_model') ||
                              variable.includes('resolution') || variable.includes('color') ||
                              variable.includes('lighting') || variable.includes('video_') ? 
-                             '(Select option for best results)' : 
-                             '(Be specific for best results)'}
+                             'Select option for best results' : 
+                             'Be specific for best results'}
                           </span>
                         </label>
                         
@@ -1179,7 +1181,7 @@ ${aiContent.content}`;
                       {loading ? (
                         <>
                           <RefreshCw className="spinner-icon" />
-                          Generating Expert Prompt...
+                          Generating Expert Prompt
                         </>
                       ) : (
                         <>
@@ -1197,7 +1199,7 @@ ${aiContent.content}`;
                       {aiLoading ? (
                         <>
                           <RefreshCw className="spinner-icon" />
-                          Generating AI Analysis...
+                          Generating AI Analysis
                         </>
                       ) : (
                         <>
@@ -1243,7 +1245,7 @@ ${aiContent.content}`;
                       <div className="result-header">
                         <h4>
                           <Crown size={18} style={{ marginRight: '8px' }} />
-                          Expert-Grade Prompt
+                          Expert Grade Prompt
                           <span className="ai-model">{generatedPrompt.expert_level}</span>
                         </h4>
                         <div className="result-actions">
@@ -1252,7 +1254,7 @@ ${aiContent.content}`;
                             className="action-btn small"
                           >
                             {copied ? <Check size={16} /> : <Copy size={16} />}
-                            {copied ? 'Copied!' : 'Copy'}
+                            {copied ? 'Copied' : 'Copy'}
                           </button>
                           <button onClick={exportPrompt} className="action-btn small">
                             <Download size={16} />
@@ -1267,19 +1269,19 @@ ${aiContent.content}`;
 
                       <div className="result-meta expert">
                         <div className="meta-item">
-                          <strong>Template:</strong> {generatedPrompt.template || 'N/A'}
+                          <strong>Template</strong> {generatedPrompt.template || 'N A'}
                         </div>
                         <div className="meta-item">
-                          <strong>Specialization:</strong> {generatedPrompt.category || 'N/A'} › {generatedPrompt.subcategory || 'N/A'}
+                          <strong>Specialization</strong> {generatedPrompt.category || 'N A'} {generatedPrompt.subcategory || 'N A'}
                         </div>
                         <div className="meta-item">
-                          <strong>Expert Level:</strong> {generatedPrompt.expert_level || 'Professional'}
+                          <strong>Expert Level</strong> {generatedPrompt.expert_level || 'Professional'}
                         </div>
                         <div className="meta-item">
-                          <strong>Complexity:</strong> {generatedPrompt.metadata?.complexity || 'High'}
+                          <strong>Complexity</strong> {generatedPrompt.metadata?.complexity || 'High'}
                         </div>
                         <div className="meta-item">
-                          <strong>Quality:</strong> {generatedPrompt.metadata?.quality || 'Expert Grade'}
+                          <strong>Quality</strong> {generatedPrompt.metadata?.quality || 'Expert Grade'}
                         </div>
                       </div>
 
@@ -1293,12 +1295,12 @@ ${aiContent.content}`;
                           {aiLoading ? (
                             <>
                               <RefreshCw className="spinner-icon" />
-                              Generating AI Expert Response...
+                              Generating AI Expert Response
                             </>
                           ) : (
                             <>
                               <Brain size={18} />
-                              Get GPT-5.2 Expert Analysis
+                              Get GPT 5.2 Expert Analysis
                             </>
                           )}
                         </button>
@@ -1313,7 +1315,7 @@ ${aiContent.content}`;
                             <Brain size={18} style={{ marginRight: '8px' }} />
                             AI Expert Response
                             <span className="ai-model">
-                              {aiContent.provider === 'openai' ? 'GPT-5.2' : 'Gemini Pro'} • {aiContent.quality}
+                              {aiContent.provider === 'openai' ? 'GPT 5.2' : 'Gemini Pro'} {aiContent.quality}
                             </span>
                           </h4>
                           <div className="result-actions">
@@ -1341,26 +1343,26 @@ ${aiContent.content}`;
 
                         <div className="result-meta expert">
                           <div className="meta-item">
-                            <strong>AI Provider:</strong> {aiContent.provider === 'openai' ? 'GPT-5.2 Turbo' : 'Gemini Pro'}
+                            <strong>AI Provider</strong> {aiContent.provider === 'openai' ? 'GPT 5.2 Turbo' : 'Gemini Pro'}
                           </div>
                           {aiContent.wordCount && (
                             <div className="meta-item">
-                              <strong>Analysis Depth:</strong> {aiContent.wordCount} words
+                              <strong>Analysis Depth</strong> {aiContent.wordCount} words
                             </div>
                           )}
                           {aiContent.tokens && (
                             <div className="meta-item">
-                              <strong>Processing:</strong> {aiContent.tokens} tokens
+                              <strong>Processing</strong> {aiContent.tokens} tokens
                             </div>
                           )}
                           {aiContent.enhancement && (
                             <div className="meta-item">
-                              <strong>Enhancement:</strong> {aiContent.enhancement}
+                              <strong>Enhancement</strong> {aiContent.enhancement}
                             </div>
                           )}
                           {aiContent.category_optimized && (
                             <div className="meta-item">
-                              <strong>Optimization:</strong> Category-specific
+                              <strong>Optimization</strong> Category specific
                             </div>
                           )}
                         </div>
@@ -1390,7 +1392,7 @@ ${aiContent.content}`;
                   <Brain size={20} />
                 </div>
                 <div className="stat-info">
-                  <div className="stat-value">{apiStatus.openai ? 'GPT-5.2' : 'Offline'}</div>
+                  <div className="stat-value">{apiStatus.openai ? 'GPT 5.2' : 'Offline'}</div>
                   <div className="stat-label">AI Engine</div>
                 </div>
               </div>
@@ -1423,7 +1425,7 @@ ${aiContent.content}`;
       {copied && (
         <div className="toast">
           <Check size={18} />
-          Copied to clipboard!
+          Copied to clipboard
         </div>
       )}
 
