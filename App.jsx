@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation, useParams } from 'react-router-dom';
 import { templateAPI, testConnection } from './services/api.js';
 import { 
   Sparkles, 
@@ -38,14 +39,27 @@ import {
   Brain,
   Award,
   Target,
-  BarChart
+  BarChart,
+  ChevronRight,
+  FolderOpen,
+  FolderClosed
 } from 'lucide-react';
 import './App.css';
 
 // Import dropdown options
 import { dropdownOptions } from './constants/dropdownOptions.js';
 
+// Main App Wrapper with Router
 function App() {
+  return (
+    <Router>
+      <AppContent />
+    </Router>
+  );
+}
+
+// Main App Content
+function AppContent() {
   // Enhanced Google Fonts with premium options
   useEffect(() => {
     const link = document.createElement('link');
@@ -86,12 +100,24 @@ function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedSection, setExpandedSection] = useState('templates');
   const [connectionStatus, setConnectionStatus] = useState('checking');
+  const [expandedCategories, setExpandedCategories] = useState({});
+  
+  const navigate = useNavigate();
+  const location = useLocation();
+  const params = useParams();
 
   // Fetch data on load
   useEffect(() => {
     fetchTemplates();
     checkAPIHealth();
   }, []);
+
+  // Handle browser back button
+  useEffect(() => {
+    if (location.pathname !== '/' && !location.pathname.includes('/category/')) {
+      navigate('/');
+    }
+  }, [location, navigate]);
 
   const fetchTemplates = async () => {
     try {
@@ -345,6 +371,13 @@ function App() {
     return placeholderMap[variable] || `Enter ${variable.replace(/_/g, ' ')}`;
   };
 
+  // Get unique categories with grouping
+  const categories = ['All Categories', ...new Set(templates.map(t => t.category))].filter(Boolean);
+  
+  // Group categories for better organization
+  const mainCategories = ['Health and Wellness', 'Image Generation', 'Business and Marketing', 'Creative Writing', 'Technology'];
+  const otherCategories = categories.filter(cat => cat !== 'All Categories' && !mainCategories.includes(cat));
+
   // Filter templates by category and search
   const filteredTemplates = templates.filter(template => {
     const matchesCategory = selectedCategory === 'All Categories' || template.category === selectedCategory;
@@ -355,9 +388,6 @@ function App() {
       template.subcategory.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
   });
-
-  // Get unique categories
-  const categories = ['All Categories', ...new Set(templates.map(t => t.category))].filter(Boolean);
 
   // Get current template
   const currentTemplate = templates.find(t => t.id === selectedTemplate);
@@ -385,6 +415,31 @@ function App() {
       'Default': <Layers size={18} className="category-icon" />
     };
     return icons[category] || icons['Default'];
+  };
+
+  // Toggle category expansion
+  const toggleCategory = (category) => {
+    setExpandedCategories(prev => ({
+      ...prev,
+      [category]: !prev[category]
+    }));
+  };
+
+  // Handle category selection with routing
+  const handleCategorySelect = (category) => {
+    setSelectedCategory(category);
+    setExpandedSection('templates');
+    
+    if (category === 'All Categories') {
+      navigate('/');
+    } else {
+      navigate(`/category/${encodeURIComponent(category)}`);
+    }
+    
+    // Close sidebar on mobile after selection
+    if (window.innerWidth <= 1024) {
+      setSidebarOpen(false);
+    }
   };
 
   const generatePrompt = async () => {
@@ -429,8 +484,6 @@ function App() {
     
     setLoading(false);
   };
-
-  // REMOVED: generateAIResponse function since we don't want AI analysis tab
 
   const copyToClipboard = async (text) => {
     try {
@@ -526,6 +579,75 @@ ${generatedPrompt.prompt}`;
     );
   };
 
+  // Render category list with collapsible sections
+  const renderCategoryList = () => (
+    <div className="category-list-container">
+      {/* Main Categories - Always visible */}
+      <div className="category-section">
+        <div className="section-header">
+          <h4 className="section-title">Main Categories</h4>
+        </div>
+        {mainCategories.map(category => (
+          <button
+            key={category}
+            className={`category-item ${selectedCategory === category ? 'active' : ''}`}
+            onClick={() => handleCategorySelect(category)}
+          >
+            {getCategoryIcon(category)}
+            <span className="category-name">{category}</span>
+            <span className="category-count">
+              {templates.filter(t => t.category === category).length}
+            </span>
+          </button>
+        ))}
+      </div>
+
+      {/* Other Categories - Collapsible */}
+      {otherCategories.length > 0 && (
+        <div className="category-section collapsible">
+          <button
+            className="collapse-toggle"
+            onClick={() => toggleCategory('other')}
+          >
+            <span className="section-title">More Categories</span>
+            <ChevronRight 
+              size={18} 
+              className={`collapse-icon ${expandedCategories['other'] ? 'expanded' : ''}`}
+            />
+          </button>
+          
+          {expandedCategories['other'] && (
+            <div className="collapsible-content">
+              {otherCategories.map(category => (
+                <button
+                  key={category}
+                  className={`category-item ${selectedCategory === category ? 'active' : ''}`}
+                  onClick={() => handleCategorySelect(category)}
+                >
+                  {getCategoryIcon(category)}
+                  <span className="category-name">{category}</span>
+                  <span className="category-count">
+                    {templates.filter(t => t.category === category).length}
+                  </span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* All Categories */}
+      <button
+        className={`category-item all-categories ${selectedCategory === 'All Categories' ? 'active' : ''}`}
+        onClick={() => handleCategorySelect('All Categories')}
+      >
+        <Layers size={18} className="category-icon" />
+        <span className="category-name">All Categories</span>
+        <span className="category-count">{templates.length}</span>
+      </button>
+    </div>
+  );
+
   return (
     <div className="app">
       {/* Header - REMOVED all AI branding */}
@@ -533,7 +655,7 @@ ${generatedPrompt.prompt}`;
         <div className="header-content">
           <button 
             className="menu-toggle"
-            onClick={() => setSidebarOpen(!sidebarOpen)}
+            onClick={toggleMobileSidebar}
             aria-label={sidebarOpen ? "Close menu" : "Open menu"}
           >
             {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
@@ -582,40 +704,9 @@ ${generatedPrompt.prompt}`;
             </div>
           </div>
 
-          {/* Category Tabs */}
-          <div className="category-tabs">
-            {categories.slice(0, 6).map(category => (
-              <button
-                key={category}
-                className={`category-tab ${selectedCategory === category ? 'active' : ''}`}
-                onClick={() => {
-                  setSelectedCategory(category);
-                  setExpandedSection('templates');
-                }}
-              >
-                {getCategoryIcon(category)}
-                <span>{category.split(' ')[0]}</span>
-              </button>
-            ))}
-            
-            {categories.length > 6 && (
-              <div className="dropdown-categories">
-                <select
-                  value={selectedCategory}
-                  onChange={(e) => {
-                    setSelectedCategory(e.target.value);
-                    setExpandedSection('templates');
-                  }}
-                  className="category-select"
-                >
-                  {categories.map(category => (
-                    <option key={category} value={category}>
-                      {category}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
+          {/* Category Navigation */}
+          <div className="category-navigation">
+            {renderCategoryList()}
           </div>
 
           {/* Search */}
@@ -705,343 +796,79 @@ ${generatedPrompt.prompt}`;
 
         {/* Main Content */}
         <div className="content">
-          {/* Connection Status Banner */}
-          {connectionStatus === 'checking' && (
-            <div className="connection-banner checking">
-              <RefreshCw className="spinner-icon" size={16} />
-              <span>Checking connection</span>
-            </div>
-          )}
-          
-          {connectionStatus === 'disconnected' && (
-            <div className="connection-banner disconnected">
-              <X size={16} />
-              <span>Connection failed</span>
-              <button onClick={testBackendConnection} className="retry-btn">
-                Retry
-              </button>
-            </div>
-          )}
-
-          {/* Collapsible Sections */}
-          <div className="sections-container">
-            {/* Templates Section */}
-            <div className="section-card">
-              <div 
-                className="section-header"
-                onClick={() => setExpandedSection(expandedSection === 'templates' ? null : 'templates')}
-                role="button"
-                tabIndex={0}
-                onKeyPress={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    setExpandedSection(expandedSection === 'templates' ? null : 'templates');
-                  }
-                }}
-              >
-                <h3>
-                  <Layers className="icon" />
-                  {selectedCategory === 'All Categories' ? 'All Templates' : `${selectedCategory} Templates`}
-                  <span className="count-badge">{filteredTemplates.length}</span>
-                </h3>
-                {expandedSection === 'templates' ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
-              </div>
-              
-              {expandedSection === 'templates' && (
-                <div className="section-content">
-                  <div className="category-grid">
-                    {categories.map(category => (
-                      <button
-                        key={category}
-                        className={`category-chip ${selectedCategory === category ? 'active' : ''}`}
-                        onClick={() => setSelectedCategory(category)}
-                      >
-                        {getCategoryIcon(category)}
-                        {category}
-                      </button>
-                    ))}
-                  </div>
-                  
-                  {/* Template Statistics */}
-                  <div className="template-stats">
-                    <div className="stat-card">
-                      <div className="stat-icon">
-                        <Award size={20} />
-                      </div>
-                      <div className="stat-info">
-                        <div className="stat-value">{templates.filter(t => t.expert_level === 'Professional').length}</div>
-                        <div className="stat-label">Premium</div>
-                      </div>
-                    </div>
-                    <div className="stat-card">
-                      <div className="stat-icon">
-                        <Target size={20} />
-                      </div>
-                      <div className="stat-info">
-                        <div className="stat-value">{categories.length}</div>
-                        <div className="stat-label">Categories</div>
-                      </div>
-                    </div>
-                    <div className="stat-card">
-                      <div className="stat-icon">
-                        <Brain size={20} />
-                      </div>
-                      <div className="stat-info">
-                        <div className="stat-value">AI</div>
-                        <div className="stat-label">Powered</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Customize Section */}
-            <div className="section-card">
-              <div 
-                className="section-header"
-                onClick={() => setExpandedSection(expandedSection === 'customize' ? null : 'customize')}
-                role="button"
-                tabIndex={0}
-                onKeyPress={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    setExpandedSection(expandedSection === 'customize' ? null : 'customize');
-                  }
-                }}
-              >
-                <h3>
-                  <PenTool className="icon" />
-                  Customize Prompt
-                  {currentTemplate && (
-                    <span className="template-name">{currentTemplate.name}</span>
-                  )}
-                </h3>
-                {expandedSection === 'customize' ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
-              </div>
-              
-              {expandedSection === 'customize' && currentTemplate && (
-                <div className="section-content">
-                  <div className="template-preview">
-                    <div className="preview-header">
-                      <h4>
-                        {currentTemplate.name}
-                        {currentTemplate.expert_level === 'Professional' && (
-                          <span className="expert-badge">
-                            <Crown size={14} />
-                            Premium
-                          </span>
-                        )}
-                      </h4>
-                      <div className="preview-tags">
-                        <span className="tag category">{currentTemplate.category}</span>
-                        <span className="tag subcategory">{currentTemplate.subcategory}</span>
-                        <span className="tag ai">
-                          <Zap size={12} />
-                          AI Optimized
-                        </span>
-                      </div>
-                    </div>
-                    <p className="preview-desc">{currentTemplate.description}</p>
-                    
-                    <div className="template-complexity">
-                      <div className="complexity-indicator">
-                        <span>Complexity</span>
-                        <div className="complexity-bar">
-                          <div className="complexity-fill" style={{ width: '75%' }}></div>
-                        </div>
-                        <span>Advanced</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="input-grid">
-                    {currentTemplate.variables && currentTemplate.variables.map(variable => (
-                      <div className="input-group" key={variable}>
-                        <label>
-                          <strong>{formatVariableLabel(variable)}</strong>
-                          <span className="hint">
-                            {shouldUseDropdown(variable) ? 
-                             'Select option for best results' : 
-                             'Be specific for best results'}
-                          </span>
-                        </label>
-                        
-                        {renderInputField(variable)}
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="expert-options">
-                    <h4>Configuration Options</h4>
-                    <div className="options-grid">
-                      <div className="option-group">
-                        <label className="checkbox-label">
-                          <input type="checkbox" defaultChecked />
-                          <span>Include Best Practices</span>
-                        </label>
-                      </div>
-                      <div className="option-group">
-                        <label className="checkbox-label">
-                          <input type="checkbox" defaultChecked />
-                          <span>Add Technical Details</span>
-                        </label>
-                      </div>
-                      <div className="option-group">
-                        <label className="checkbox-label">
-                          <input type="checkbox" defaultChecked />
-                          <span>Include Examples</span>
-                        </label>
-                      </div>
-                      <div className="option-group">
-                        <label className="checkbox-label">
-                          <input type="checkbox" defaultChecked />
-                          <span>Optimize Output</span>
-                        </label>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="action-buttons">
-                    <button
-                      onClick={generatePrompt}
-                      disabled={loading}
-                      className="action-btn primary"
-                    >
-                      {loading ? (
-                        <>
-                          <RefreshCw className="spinner-icon" />
-                          Generating Prompt
-                        </>
-                      ) : (
-                        <>
-                          <PenTool size={18} />
-                          Generate Expert Prompt
-                        </>
-                      )}
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Results Section - SIMPLIFIED, NO AI ANALYSIS */}
-            {generatedPrompt && (
-              <div className="section-card">
-                <div 
-                  className="section-header"
-                  onClick={() => setExpandedSection(expandedSection === 'results' ? null : 'results')}
-                  role="button"
-                  tabIndex={0}
-                  onKeyPress={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      setExpandedSection(expandedSection === 'results' ? null : 'results');
-                    }
-                  }}
-                >
-                  <h3>
-                    <Sparkles className="icon" />
-                    Generated Prompt
-                    <span className="results-badge">
-                      <Diamond size={12} />
-                      Ready
-                    </span>
-                  </h3>
-                  {expandedSection === 'results' ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
-                </div>
-                
-                {expandedSection === 'results' && (
-                  <div className="section-content">
-                    {/* Generated Prompt Only */}
-                    <div className="result-card">
-                      <div className="result-header">
-                        <h4>
-                          <Crown size={18} style={{ marginRight: '8px' }} />
-                          Expert Prompt
-                          <span className="ai-model">Premium</span>
-                        </h4>
-                        <div className="result-actions">
-                          <button
-                            onClick={() => copyToClipboard(generatedPrompt.prompt)}
-                            className="action-btn small"
-                          >
-                            {copied ? <Check size={16} /> : <Copy size={16} />}
-                            {copied ? 'Copied' : 'Copy'}
-                          </button>
-                          <button onClick={exportPrompt} className="action-btn small">
-                            <Download size={16} />
-                            Export
-                          </button>
-                        </div>
-                      </div>
-                      
-                      <div className="prompt-output expert">
-                        <pre>{generatedPrompt.prompt}</pre>
-                      </div>
-
-                      <div className="result-meta expert">
-                        <div className="meta-item">
-                          <strong>Template</strong> {generatedPrompt.template || 'N A'}
-                        </div>
-                        <div className="meta-item">
-                          <strong>Category</strong> {generatedPrompt.category || 'N A'} {generatedPrompt.subcategory || 'N A'}
-                        </div>
-                        <div className="meta-item">
-                          <strong>Quality</strong> {generatedPrompt.expert_level || 'Premium'}
-                        </div>
-                        <div className="meta-item">
-                          <strong>Complexity</strong> {generatedPrompt.metadata?.complexity || 'Advanced'}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-
-          {/* Quick Stats Footer */}
-          <div className="content-footer">
-            <div className="quick-stats">
-              <div className="stat-card">
-                <div className="stat-icon">
-                  <Award size={20} />
-                </div>
-                <div className="stat-info">
-                  <div className="stat-value">{templates.length}</div>
-                  <div className="stat-label">Templates</div>
-                </div>
-              </div>
-              
-              <div className="stat-card">
-                <div className="stat-icon">
-                  <Brain size={20} />
-                </div>
-                <div className="stat-info">
-                  <div className="stat-value">{apiStatus.openai ? 'Ready' : 'Offline'}</div>
-                  <div className="stat-label">AI Service</div>
-                </div>
-              </div>
-              
-              <div className="stat-card">
-                <div className="stat-icon">
-                  <Target size={20} />
-                </div>
-                <div className="stat-info">
-                  <div className="stat-value">{categories.length}</div>
-                  <div className="stat-label">Categories</div>
-                </div>
-              </div>
-              
-              <div className="stat-card">
-                <div className="stat-icon">
-                  <BarChart size={20} />
-                </div>
-                <div className="stat-info">
-                  <div className="stat-value">Premium</div>
-                  <div className="stat-label">Quality</div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <Routes>
+            <Route 
+              path="/" 
+              element={
+                <HomeContent 
+                  connectionStatus={connectionStatus}
+                  testBackendConnection={testBackendConnection}
+                  selectedCategory={selectedCategory}
+                  categories={categories}
+                  setSelectedCategory={setSelectedCategory}
+                  templates={templates}
+                  filteredTemplates={filteredTemplates}
+                  getCategoryIcon={getCategoryIcon}
+                  currentTemplate={currentTemplate}
+                  selectedTemplate={selectedTemplate}
+                  setSelectedTemplate={setSelectedTemplate}
+                  inputs={inputs}
+                  handleInputChange={handleInputChange}
+                  formatVariableLabel={formatVariableLabel}
+                  shouldUseDropdown={shouldUseDropdown}
+                  getPlaceholderText={getPlaceholderText}
+                  getDropdownOptionsForVariable={getDropdownOptionsForVariable}
+                  renderInputField={renderInputField}
+                  generatePrompt={generatePrompt}
+                  loading={loading}
+                  generatedPrompt={generatedPrompt}
+                  copyToClipboard={copyToClipboard}
+                  exportPrompt={exportPrompt}
+                  copied={copied}
+                  apiStatus={apiStatus}
+                  expandedSection={expandedSection}
+                  setExpandedSection={setExpandedSection}
+                  handleTemplateSelect={handleTemplateSelect}
+                />
+              } 
+            />
+            <Route 
+              path="/category/:categoryName" 
+              element={
+                <CategoryContent 
+                  connectionStatus={connectionStatus}
+                  testBackendConnection={testBackendConnection}
+                  selectedCategory={selectedCategory}
+                  categories={categories}
+                  setSelectedCategory={setSelectedCategory}
+                  templates={templates}
+                  filteredTemplates={filteredTemplates}
+                  getCategoryIcon={getCategoryIcon}
+                  currentTemplate={currentTemplate}
+                  selectedTemplate={selectedTemplate}
+                  setSelectedTemplate={setSelectedTemplate}
+                  inputs={inputs}
+                  handleInputChange={handleInputChange}
+                  formatVariableLabel={formatVariableLabel}
+                  shouldUseDropdown={shouldUseDropdown}
+                  getPlaceholderText={getPlaceholderText}
+                  getDropdownOptionsForVariable={getDropdownOptionsForVariable}
+                  renderInputField={renderInputField}
+                  generatePrompt={generatePrompt}
+                  loading={loading}
+                  generatedPrompt={generatedPrompt}
+                  copyToClipboard={copyToClipboard}
+                  exportPrompt={exportPrompt}
+                  copied={copied}
+                  apiStatus={apiStatus}
+                  expandedSection={expandedSection}
+                  setExpandedSection={setExpandedSection}
+                  handleTemplateSelect={handleTemplateSelect}
+                  navigate={navigate}
+                />
+              } 
+            />
+          </Routes>
         </div>
       </main>
 
@@ -1071,6 +898,799 @@ ${generatedPrompt.prompt}`;
         </button>
       </div>
     </div>
+  );
+}
+
+// Home Component
+function HomeContent(props) {
+  const {
+    connectionStatus,
+    testBackendConnection,
+    selectedCategory,
+    categories,
+    setSelectedCategory,
+    templates,
+    filteredTemplates,
+    getCategoryIcon,
+    currentTemplate,
+    selectedTemplate,
+    setSelectedTemplate,
+    inputs,
+    handleInputChange,
+    formatVariableLabel,
+    shouldUseDropdown,
+    getPlaceholderText,
+    getDropdownOptionsForVariable,
+    renderInputField,
+    generatePrompt,
+    loading,
+    generatedPrompt,
+    copyToClipboard,
+    exportPrompt,
+    copied,
+    apiStatus,
+    expandedSection,
+    setExpandedSection,
+    handleTemplateSelect
+  } = props;
+
+  return (
+    <>
+      {/* Connection Status Banner */}
+      {connectionStatus === 'checking' && (
+        <div className="connection-banner checking">
+          <RefreshCw className="spinner-icon" size={16} />
+          <span>Checking connection</span>
+        </div>
+      )}
+      
+      {connectionStatus === 'disconnected' && (
+        <div className="connection-banner disconnected">
+          <X size={16} />
+          <span>Connection failed</span>
+          <button onClick={testBackendConnection} className="retry-btn">
+            Retry
+          </button>
+        </div>
+      )}
+
+      {/* Collapsible Sections */}
+      <div className="sections-container">
+        {/* Templates Section */}
+        <div className="section-card">
+          <div 
+            className="section-header"
+            onClick={() => setExpandedSection(expandedSection === 'templates' ? null : 'templates')}
+            role="button"
+            tabIndex={0}
+            onKeyPress={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                setExpandedSection(expandedSection === 'templates' ? null : 'templates');
+              }
+            }}
+          >
+            <h3>
+              <Layers className="icon" />
+              All Templates
+              <span className="count-badge">{filteredTemplates.length}</span>
+            </h3>
+            {expandedSection === 'templates' ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+          </div>
+          
+          {expandedSection === 'templates' && (
+            <div className="section-content">
+              <div className="category-grid">
+                {categories.map(category => (
+                  <button
+                    key={category}
+                    className={`category-chip ${selectedCategory === category ? 'active' : ''}`}
+                    onClick={() => setSelectedCategory(category)}
+                  >
+                    {getCategoryIcon(category)}
+                    {category}
+                  </button>
+                ))}
+              </div>
+              
+              {/* Template Statistics */}
+              <div className="template-stats">
+                <div className="stat-card">
+                  <div className="stat-icon">
+                    <Award size={20} />
+                  </div>
+                  <div className="stat-info">
+                    <div className="stat-value">{templates.filter(t => t.expert_level === 'Professional').length}</div>
+                    <div className="stat-label">Premium</div>
+                  </div>
+                </div>
+                <div className="stat-card">
+                  <div className="stat-icon">
+                    <Target size={20} />
+                  </div>
+                  <div className="stat-info">
+                    <div className="stat-value">{categories.length}</div>
+                    <div className="stat-label">Categories</div>
+                  </div>
+                </div>
+                <div className="stat-card">
+                  <div className="stat-icon">
+                    <Brain size={20} />
+                  </div>
+                  <div className="stat-info">
+                    <div className="stat-value">AI</div>
+                    <div className="stat-label">Powered</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Customize Section */}
+        <div className="section-card">
+          <div 
+            className="section-header"
+            onClick={() => setExpandedSection(expandedSection === 'customize' ? null : 'customize')}
+            role="button"
+            tabIndex={0}
+            onKeyPress={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                setExpandedSection(expandedSection === 'customize' ? null : 'customize');
+              }
+            }}
+          >
+            <h3>
+              <PenTool className="icon" />
+              Customize Prompt
+              {currentTemplate && (
+                <span className="template-name">{currentTemplate.name}</span>
+              )}
+            </h3>
+            {expandedSection === 'customize' ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+          </div>
+          
+          {expandedSection === 'customize' && currentTemplate && (
+            <div className="section-content">
+              <div className="template-preview">
+                <div className="preview-header">
+                  <h4>
+                    {currentTemplate.name}
+                    {currentTemplate.expert_level === 'Professional' && (
+                      <span className="expert-badge">
+                        <Crown size={14} />
+                        Premium
+                      </span>
+                    )}
+                  </h4>
+                  <div className="preview-tags">
+                    <span className="tag category">{currentTemplate.category}</span>
+                    <span className="tag subcategory">{currentTemplate.subcategory}</span>
+                    <span className="tag ai">
+                      <Zap size={12} />
+                      AI Optimized
+                    </span>
+                  </div>
+                </div>
+                <p className="preview-desc">{currentTemplate.description}</p>
+                
+                <div className="template-complexity">
+                  <div className="complexity-indicator">
+                    <span>Complexity</span>
+                    <div className="complexity-bar">
+                      <div className="complexity-fill" style={{ width: '75%' }}></div>
+                    </div>
+                    <span>Advanced</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="input-grid">
+                {currentTemplate.variables && currentTemplate.variables.map(variable => (
+                  <div className="input-group" key={variable}>
+                    <label>
+                      <strong>{formatVariableLabel(variable)}</strong>
+                      <span className="hint">
+                        {shouldUseDropdown(variable) ? 
+                         'Select option for best results' : 
+                         'Be specific for best results'}
+                      </span>
+                    </label>
+                    
+                    {renderInputField(variable)}
+                  </div>
+                ))}
+              </div>
+
+              <div className="expert-options">
+                <h4>Configuration Options</h4>
+                <div className="options-grid">
+                  <div className="option-group">
+                    <label className="checkbox-label">
+                      <input type="checkbox" defaultChecked />
+                      <span>Include Best Practices</span>
+                    </label>
+                  </div>
+                  <div className="option-group">
+                    <label className="checkbox-label">
+                      <input type="checkbox" defaultChecked />
+                      <span>Add Technical Details</span>
+                    </label>
+                  </div>
+                  <div className="option-group">
+                    <label className="checkbox-label">
+                      <input type="checkbox" defaultChecked />
+                      <span>Include Examples</span>
+                    </label>
+                  </div>
+                  <div className="option-group">
+                    <label className="checkbox-label">
+                      <input type="checkbox" defaultChecked />
+                      <span>Optimize Output</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <div className="action-buttons">
+                <button
+                  onClick={generatePrompt}
+                  disabled={loading}
+                  className="action-btn primary"
+                >
+                  {loading ? (
+                    <>
+                      <RefreshCw className="spinner-icon" />
+                      Generating Prompt
+                    </>
+                  ) : (
+                    <>
+                      <PenTool size={18} />
+                      Generate Expert Prompt
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Results Section */}
+        {generatedPrompt && (
+          <div className="section-card">
+            <div 
+              className="section-header"
+              onClick={() => setExpandedSection(expandedSection === 'results' ? null : 'results')}
+              role="button"
+              tabIndex={0}
+              onKeyPress={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  setExpandedSection(expandedSection === 'results' ? null : 'results');
+                }
+              }}
+            >
+              <h3>
+                <Sparkles className="icon" />
+                Generated Prompt
+                <span className="results-badge">
+                  <Diamond size={12} />
+                  Ready
+                </span>
+              </h3>
+              {expandedSection === 'results' ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+            </div>
+            
+            {expandedSection === 'results' && (
+              <div className="section-content">
+                <div className="result-card">
+                  <div className="result-header">
+                    <h4>
+                      <Crown size={18} style={{ marginRight: '8px' }} />
+                      Expert Prompt
+                      <span className="ai-model">Premium</span>
+                    </h4>
+                    <div className="result-actions">
+                      <button
+                        onClick={() => copyToClipboard(generatedPrompt.prompt)}
+                        className="action-btn small"
+                      >
+                        {copied ? <Check size={16} /> : <Copy size={16} />}
+                        {copied ? 'Copied' : 'Copy'}
+                      </button>
+                      <button onClick={exportPrompt} className="action-btn small">
+                        <Download size={16} />
+                        Export
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <div className="prompt-output expert">
+                    <pre>{generatedPrompt.prompt}</pre>
+                  </div>
+
+                  <div className="result-meta expert">
+                    <div className="meta-item">
+                      <strong>Template</strong> {generatedPrompt.template || 'N A'}
+                    </div>
+                    <div className="meta-item">
+                      <strong>Category</strong> {generatedPrompt.category || 'N A'} {generatedPrompt.subcategory || 'N A'}
+                    </div>
+                    <div className="meta-item">
+                      <strong>Quality</strong> {generatedPrompt.expert_level || 'Premium'}
+                    </div>
+                    <div className="meta-item">
+                      <strong>Complexity</strong> {generatedPrompt.metadata?.complexity || 'Advanced'}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Quick Stats Footer */}
+      <div className="content-footer">
+        <div className="quick-stats">
+          <div className="stat-card">
+            <div className="stat-icon">
+              <Award size={20} />
+            </div>
+            <div className="stat-info">
+              <div className="stat-value">{templates.length}</div>
+              <div className="stat-label">Templates</div>
+            </div>
+          </div>
+          
+          <div className="stat-card">
+            <div className="stat-icon">
+              <Brain size={20} />
+            </div>
+            <div className="stat-info">
+              <div className="stat-value">{apiStatus.openai ? 'Ready' : 'Offline'}</div>
+              <div className="stat-label">AI Service</div>
+            </div>
+          </div>
+          
+          <div className="stat-card">
+            <div className="stat-icon">
+              <Target size={20} />
+            </div>
+            <div className="stat-info">
+              <div className="stat-value">{categories.length}</div>
+              <div className="stat-label">Categories</div>
+            </div>
+          </div>
+          
+          <div className="stat-card">
+            <div className="stat-icon">
+              <BarChart size={20} />
+            </div>
+            <div className="stat-info">
+              <div className="stat-value">Premium</div>
+              <div className="stat-label">Quality</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
+// Category Component
+function CategoryContent(props) {
+  const {
+    connectionStatus,
+    testBackendConnection,
+    selectedCategory,
+    categories,
+    setSelectedCategory,
+    templates,
+    filteredTemplates,
+    getCategoryIcon,
+    currentTemplate,
+    selectedTemplate,
+    setSelectedTemplate,
+    inputs,
+    handleInputChange,
+    formatVariableLabel,
+    shouldUseDropdown,
+    getPlaceholderText,
+    getDropdownOptionsForVariable,
+    renderInputField,
+    generatePrompt,
+    loading,
+    generatedPrompt,
+    copyToClipboard,
+    exportPrompt,
+    copied,
+    apiStatus,
+    expandedSection,
+    setExpandedSection,
+    handleTemplateSelect,
+    navigate
+  } = props;
+
+  // Get category name from URL
+  const { categoryName } = useParams();
+  const decodedCategoryName = decodeURIComponent(categoryName || '');
+
+  useEffect(() => {
+    if (decodedCategoryName && categories.includes(decodedCategoryName)) {
+      setSelectedCategory(decodedCategoryName);
+    }
+  }, [decodedCategoryName, categories, setSelectedCategory]);
+
+  const handleBack = () => {
+    navigate('/');
+    setSelectedCategory('All Categories');
+  };
+
+  return (
+    <>
+      {/* Category Header */}
+      <div className="category-header">
+        <button onClick={handleBack} className="back-button">
+          <ChevronRight size={20} className="back-icon" />
+          Back to All Templates
+        </button>
+        <h2 className="category-title">
+          {getCategoryIcon(selectedCategory)}
+          {selectedCategory}
+          <span className="category-count">{filteredTemplates.length} templates</span>
+        </h2>
+      </div>
+
+      {/* Connection Status Banner */}
+      {connectionStatus === 'checking' && (
+        <div className="connection-banner checking">
+          <RefreshCw className="spinner-icon" size={16} />
+          <span>Checking connection</span>
+        </div>
+      )}
+      
+      {connectionStatus === 'disconnected' && (
+        <div className="connection-banner disconnected">
+          <X size={16} />
+          <span>Connection failed</span>
+          <button onClick={testBackendConnection} className="retry-btn">
+            Retry
+          </button>
+        </div>
+      )}
+
+      {/* Category Content */}
+      <div className="sections-container">
+        {/* Category Templates Section */}
+        <div className="section-card">
+          <div 
+            className="section-header"
+            onClick={() => setExpandedSection(expandedSection === 'templates' ? null : 'templates')}
+            role="button"
+            tabIndex={0}
+            onKeyPress={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                setExpandedSection(expandedSection === 'templates' ? null : 'templates');
+              }
+            }}
+          >
+            <h3>
+              <Layers className="icon" />
+              {selectedCategory} Templates
+              <span className="count-badge">{filteredTemplates.length}</span>
+            </h3>
+            {expandedSection === 'templates' ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+          </div>
+          
+          {expandedSection === 'templates' && (
+            <div className="section-content">
+              <div className="category-grid">
+                {categories.map(category => (
+                  <button
+                    key={category}
+                    className={`category-chip ${selectedCategory === category ? 'active' : ''}`}
+                    onClick={() => {
+                      setSelectedCategory(category);
+                      if (category === 'All Categories') {
+                        navigate('/');
+                      } else {
+                        navigate(`/category/${encodeURIComponent(category)}`);
+                      }
+                    }}
+                  >
+                    {getCategoryIcon(category)}
+                    {category}
+                  </button>
+                ))}
+              </div>
+              
+              {/* Category Statistics */}
+              <div className="template-stats">
+                <div className="stat-card">
+                  <div className="stat-icon">
+                    <Award size={20} />
+                  </div>
+                  <div className="stat-info">
+                    <div className="stat-value">
+                      {templates.filter(t => t.category === selectedCategory && t.expert_level === 'Professional').length}
+                    </div>
+                    <div className="stat-label">Premium</div>
+                  </div>
+                </div>
+                <div className="stat-card">
+                  <div className="stat-icon">
+                    <Target size={20} />
+                  </div>
+                  <div className="stat-info">
+                    <div className="stat-value">
+                      {new Set(templates.filter(t => t.category === selectedCategory).map(t => t.subcategory)).size}
+                    </div>
+                    <div className="stat-label">Subcategories</div>
+                  </div>
+                </div>
+                <div className="stat-card">
+                  <div className="stat-icon">
+                    <Brain size={20} />
+                  </div>
+                  <div className="stat-info">
+                    <div className="stat-value">AI</div>
+                    <div className="stat-label">Powered</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Rest of the sections remain the same as HomeContent */}
+        {/* Customize Section */}
+        <div className="section-card">
+          <div 
+            className="section-header"
+            onClick={() => setExpandedSection(expandedSection === 'customize' ? null : 'customize')}
+            role="button"
+            tabIndex={0}
+            onKeyPress={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                setExpandedSection(expandedSection === 'customize' ? null : 'customize');
+              }
+            }}
+          >
+            <h3>
+              <PenTool className="icon" />
+              Customize Prompt
+              {currentTemplate && (
+                <span className="template-name">{currentTemplate.name}</span>
+              )}
+            </h3>
+            {expandedSection === 'customize' ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+          </div>
+          
+          {expandedSection === 'customize' && currentTemplate && (
+            <div className="section-content">
+              <div className="template-preview">
+                <div className="preview-header">
+                  <h4>
+                    {currentTemplate.name}
+                    {currentTemplate.expert_level === 'Professional' && (
+                      <span className="expert-badge">
+                        <Crown size={14} />
+                        Premium
+                      </span>
+                    )}
+                  </h4>
+                  <div className="preview-tags">
+                    <span className="tag category">{currentTemplate.category}</span>
+                    <span className="tag subcategory">{currentTemplate.subcategory}</span>
+                    <span className="tag ai">
+                      <Zap size={12} />
+                      AI Optimized
+                    </span>
+                  </div>
+                </div>
+                <p className="preview-desc">{currentTemplate.description}</p>
+                
+                <div className="template-complexity">
+                  <div className="complexity-indicator">
+                    <span>Complexity</span>
+                    <div className="complexity-bar">
+                      <div className="complexity-fill" style={{ width: '75%' }}></div>
+                    </div>
+                    <span>Advanced</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="input-grid">
+                {currentTemplate.variables && currentTemplate.variables.map(variable => (
+                  <div className="input-group" key={variable}>
+                    <label>
+                      <strong>{formatVariableLabel(variable)}</strong>
+                      <span className="hint">
+                        {shouldUseDropdown(variable) ? 
+                         'Select option for best results' : 
+                         'Be specific for best results'}
+                      </span>
+                    </label>
+                    
+                    {renderInputField(variable)}
+                  </div>
+                ))}
+              </div>
+
+              <div className="expert-options">
+                <h4>Configuration Options</h4>
+                <div className="options-grid">
+                  <div className="option-group">
+                    <label className="checkbox-label">
+                      <input type="checkbox" defaultChecked />
+                      <span>Include Best Practices</span>
+                    </label>
+                  </div>
+                  <div className="option-group">
+                    <label className="checkbox-label">
+                      <input type="checkbox" defaultChecked />
+                      <span>Add Technical Details</span>
+                    </label>
+                  </div>
+                  <div className="option-group">
+                    <label className="checkbox-label">
+                      <input type="checkbox" defaultChecked />
+                      <span>Include Examples</span>
+                    </label>
+                  </div>
+                  <div className="option-group">
+                    <label className="checkbox-label">
+                      <input type="checkbox" defaultChecked />
+                      <span>Optimize Output</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <div className="action-buttons">
+                <button
+                  onClick={generatePrompt}
+                  disabled={loading}
+                  className="action-btn primary"
+                >
+                  {loading ? (
+                    <>
+                      <RefreshCw className="spinner-icon" />
+                      Generating Prompt
+                    </>
+                  ) : (
+                    <>
+                      <PenTool size={18} />
+                      Generate Expert Prompt
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Results Section */}
+        {generatedPrompt && (
+          <div className="section-card">
+            <div 
+              className="section-header"
+              onClick={() => setExpandedSection(expandedSection === 'results' ? null : 'results')}
+              role="button"
+              tabIndex={0}
+              onKeyPress={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  setExpandedSection(expandedSection === 'results' ? null : 'results');
+                }
+              }}
+            >
+              <h3>
+                <Sparkles className="icon" />
+                Generated Prompt
+                <span className="results-badge">
+                  <Diamond size={12} />
+                  Ready
+                </span>
+              </h3>
+              {expandedSection === 'results' ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+            </div>
+            
+            {expandedSection === 'results' && (
+              <div className="section-content">
+                <div className="result-card">
+                  <div className="result-header">
+                    <h4>
+                      <Crown size={18} style={{ marginRight: '8px' }} />
+                      Expert Prompt
+                      <span className="ai-model">Premium</span>
+                    </h4>
+                    <div className="result-actions">
+                      <button
+                        onClick={() => copyToClipboard(generatedPrompt.prompt)}
+                        className="action-btn small"
+                      >
+                        {copied ? <Check size={16} /> : <Copy size={16} />}
+                        {copied ? 'Copied' : 'Copy'}
+                      </button>
+                      <button onClick={exportPrompt} className="action-btn small">
+                        <Download size={16} />
+                        Export
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <div className="prompt-output expert">
+                    <pre>{generatedPrompt.prompt}</pre>
+                  </div>
+
+                  <div className="result-meta expert">
+                    <div className="meta-item">
+                      <strong>Template</strong> {generatedPrompt.template || 'N A'}
+                    </div>
+                    <div className="meta-item">
+                      <strong>Category</strong> {generatedPrompt.category || 'N A'} {generatedPrompt.subcategory || 'N A'}
+                    </div>
+                    <div className="meta-item">
+                      <strong>Quality</strong> {generatedPrompt.expert_level || 'Premium'}
+                    </div>
+                    <div className="meta-item">
+                      <strong>Complexity</strong> {generatedPrompt.metadata?.complexity || 'Advanced'}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Quick Stats Footer */}
+      <div className="content-footer">
+        <div className="quick-stats">
+          <div className="stat-card">
+            <div className="stat-icon">
+              <Award size={20} />
+            </div>
+            <div className="stat-info">
+              <div className="stat-value">{filteredTemplates.length}</div>
+              <div className="stat-label">Templates</div>
+            </div>
+          </div>
+          
+          <div className="stat-card">
+            <div className="stat-icon">
+              <Brain size={20} />
+            </div>
+            <div className="stat-info">
+              <div className="stat-value">{apiStatus.openai ? 'Ready' : 'Offline'}</div>
+              <div className="stat-label">AI Service</div>
+            </div>
+          </div>
+          
+          <div className="stat-card">
+            <div className="stat-icon">
+              <Target size={20} />
+            </div>
+            <div className="stat-info">
+              <div className="stat-value">
+                {new Set(templates.filter(t => t.category === selectedCategory).map(t => t.subcategory)).size}
+              </div>
+              <div className="stat-label">Subcategories</div>
+            </div>
+          </div>
+          
+          <div className="stat-card">
+            <div className="stat-icon">
+              <BarChart size={20} />
+            </div>
+            <div className="stat-info">
+              <div className="stat-value">Premium</div>
+              <div className="stat-label">Quality</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
   );
 }
 
