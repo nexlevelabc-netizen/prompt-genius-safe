@@ -2,74 +2,48 @@ import React, { useState, useEffect } from 'react';
 import { templateAPI, testConnection } from './services/api.js';
 import { 
   Sparkles, 
-  Code2, 
   PenTool, 
-  TrendingUp, 
   Zap, 
   Copy, 
   Check,
-  Star,
   Layers,
-  Settings,
   Download,
-  History,
   Bot,
-  Cpu,
   RefreshCw,
   Menu,
   X,
   ChevronDown,
   ChevronUp,
   Search,
-  Filter,
   Grid,
   List,
   Heart,
-  BookOpen,
-  Music,
-  Film,
   Camera,
-  Video,
-  Dumbbell,
-  Book,
-  Newspaper,
-  Plane,
-  DollarSign,
-  Scale,
-  Truck,
-  Users,
-  TrendingUp as ChartUp,
-  Home,
   Briefcase,
-  Smartphone,
-  Palette,
-  MessageSquare,
-  FileText,
-  Brain,
   Code,
-  Globe,
-  Target,
-  Award,
-  Clock,
-  BarChart,
-  Shield,
-  Music as MusicIcon,
+  Scale,
+  DollarSign,
+  Home,
+  Plane,
   Coffee,
+  Music as MusicIcon,
+  Palette,
   GamepadIcon,
   GraduationCap,
-  Wrench,
   VideoIcon,
-  BriefcaseBusiness,
   UserCheck,
-  Zap as Lightning,
-  Diamond,
+  Video,
   Crown,
-  Info
+  Diamond,
+  Brain,
+  Award,
+  Target,
+  BarChart
 } from 'lucide-react';
 import './App.css';
 
 // Import dropdown options
-import { dropdownOptions, getOptionsForVariable } from './constants/dropdownOptions.js';
+import { dropdownOptions } from './constants/dropdownOptions.js';
 
 function App() {
   // Enhanced Google Fonts with premium options
@@ -85,13 +59,11 @@ function App() {
     link2.crossOrigin = 'true';
     document.head.appendChild(link2);
     
-    // Premium font stack: Inter (sans-serif), JetBrains Mono (monospace), Source Serif Pro (serif for content)
     const link3 = document.createElement('link');
     link3.rel = 'stylesheet';
-    link3.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500;600&family=Source+Serif+Pro:wght@400;600;700&display=swap';
+    link3.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500;600&display=swap';
     document.head.appendChild(link3);
     
-    // Apply base font styles
     document.body.style.fontFamily = "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
   }, []);
 
@@ -113,15 +85,12 @@ function App() {
   const [viewMode, setViewMode] = useState('grid');
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedSection, setExpandedSection] = useState('templates');
-  const [tones, setTones] = useState([]);
-  const [expertMode, setExpertMode] = useState(true);
   const [connectionStatus, setConnectionStatus] = useState('checking');
 
   // Fetch data on load
   useEffect(() => {
     fetchTemplates();
     checkAPIHealth();
-    fetchTones();
   }, []);
 
   const fetchTemplates = async () => {
@@ -132,20 +101,6 @@ function App() {
     } catch (error) {
       console.error('Failed to fetch templates:', error);
       setTemplates([]);
-    }
-  };
-
-  const fetchTones = async () => {
-    try {
-      const tonesList = [
-        'Professional', 'Expert', 'Authoritative', 'Clinical', 'Technical',
-        'Creative', 'Persuasive', 'Educational', 'Conversational', 'Formal',
-        'Analytical', 'Strategic', 'Inspirational', 'Detailed', 'Comprehensive',
-        'Casual', 'Friendly', 'Academic', 'Business', 'Marketing'
-      ];
-      setTones(tonesList);
-    } catch (error) {
-      console.error('Failed to fetch tones:', error);
     }
   };
 
@@ -163,7 +118,6 @@ function App() {
       setApiStatus({ openai: false, templates: 0 });
       setConnectionStatus('disconnected');
       
-      // Try direct connection test
       const test = await testConnection();
       if (test.success) {
         setConnectionStatus('connected');
@@ -182,10 +136,10 @@ function App() {
     }));
   };
 
-  // Enhanced input label formatter - converts snake_case to readable text WITHOUT slashes
+  // Enhanced input label formatter
   const formatVariableLabel = (variable) => {
     const labelMap = {
-      // Medical/Health - NO SLASHES
+      // Medical and Health
       'presentation': 'Describe the Symptoms',
       'diagnosis_considerations': 'Possible Causes to Consider',
       'treatment_approach': 'Suggested Treatment Plan',
@@ -194,9 +148,9 @@ function App() {
       'complexity': 'Case Difficulty Level',
       'condition': 'Main Medical Condition',
       'demographic': 'Patient Information',
-      'tone': 'Output Tone and Style', // Changed / to and
+      'tone': 'Output Tone and Style',
       
-      // Business and Marketing - NO SLASHES
+      // Business and Marketing
       'target_audience': 'Target Audience',
       'product_service': 'Product or Service',
       'key_benefits': 'Key Benefits',
@@ -208,19 +162,19 @@ function App() {
       'genre': 'Genre',
       'plot_summary': 'Plot Summary',
       'character_descriptions': 'Character Descriptions',
-      'setting': 'Setting and Location', // Changed / to and
-      'theme': 'Theme and Mood', // Changed / to and
+      'setting': 'Setting and Location',
+      'theme': 'Theme and Mood',
       'writing_style': 'Writing Style',
       
       // Image Generation
       'subject': 'Main Subject',
       'style': 'Art Style',
       'color_palette': 'Color Palette',
-      'composition': 'Composition and Layout', // Changed / to and
+      'composition': 'Composition and Layout',
       'lighting': 'Lighting',
-      'mood': 'Mood and Atmosphere', // Changed / to and
-      'ai_model': 'AI Platform and Model', // Changed / to and
-      'resolution': 'Resolution and Quality', // Changed / to and
+      'mood': 'Mood and Atmosphere',
+      'ai_model': 'AI Platform',
+      'resolution': 'Resolution',
       
       // Video Generation
       'video_subject': 'Video Subject',
@@ -231,18 +185,18 @@ function App() {
       'video_resolution': 'Video Resolution',
       'video_ai_model': 'Video AI Platform',
       
-      // General and Common
+      // General
       'topic': 'Topic',
       'audience': 'Intended Audience',
-      'purpose': 'Purpose and Goal', // Changed / to and
+      'purpose': 'Purpose and Goal',
       'key_points': 'Key Points to Include',
       'format': 'Output Format',
       'length': 'Desired Length',
-      'examples': 'Examples and References', // Changed / to and
+      'examples': 'Examples and References',
       'level': 'Expertise Level',
-      'language': 'Language and Tone', // Changed / to and
+      'language': 'Language and Tone',
       'requirements': 'Specific Requirements',
-      'constraints': 'Limitations and Constraints', // Changed / to and
+      'constraints': 'Limitations and Constraints',
       'goals': 'Desired Outcomes',
       'metrics': 'Success Metrics'
     };
@@ -251,144 +205,144 @@ function App() {
       return labelMap[variable];
     }
 
-    // Fallback: convert snake_case to readable text WITHOUT slashes
     return variable
       .replace(/_/g, ' ')
       .replace(/\b\w/g, char => char.toUpperCase())
       .replace(/\bai\b/gi, 'AI')
-      .replace(/\bapi\b/gi, 'API')
-      .replace(/\//g, ' and '); // Replace any remaining slashes with "and"
+      .replace(/\bapi\b/gi, 'API');
   };
 
-  // Enhanced placeholder text generator WITHOUT slashes
-  const getPlaceholderText = (variable) => {
-    const placeholderMap = {
-      // Medical/Health
-      'presentation': 'Describe how the condition looks and feels. Be detailed.',
-      'diagnosis_considerations': 'List possible conditions to analyze.',
-      'treatment_approach': 'Describe the recommended care steps.',
-      'monitoring': 'List signs of improvement or worsening to track.',
-      'red_flags': 'List symptoms that require immediate attention.',
-      'condition': 'Example swelling in left ankle',
-      'demographic': 'Example 45 year old male',
-      
-      // Business and Marketing
-      'target_audience': 'Describe your ideal customer or audience.',
-      'product_service': 'Briefly describe what you offer.',
-      'key_benefits': 'List main benefits or features.',
-      'call_to_action': 'What should the audience do next',
-      'unique_selling_proposition': 'What makes you different',
-      'brand_voice': 'Describe your brand personality.',
-      
-      // Creative
-      'plot_summary': 'Brief overview of the story.',
-      'character_descriptions': 'Describe main characters.',
-      'setting': 'Where and when does this take place',
-      'theme': 'What mood or message do you want',
-      'writing_style': 'Describe the writing approach.',
-      
-      // Image Generation
-      'subject': 'What is the main focus. Be specific for best results.',
-      'style': 'Select artistic style',
-      'color_palette': 'Select color palette',
-      'composition': 'Example close up, wide shot, portrait',
-      'lighting': 'Select lighting style',
-      'mood': 'Example mysterious, joyful, peaceful',
-      'ai_model': 'Select AI platform',
-      'resolution': 'Select resolution quality',
-      
-      // Video Generation
-      'video_subject': 'Describe the scene or action for your video.',
-      'video_style': 'Select video style',
-      'video_length': 'Select video length',
-      'aspect_ratio': 'Select aspect ratio',
-      'frame_rate': 'Select frame rate',
-      'video_resolution': 'Select video resolution',
-      'video_ai_model': 'Select video AI platform',
-      
-      // General
-      'topic': 'What is this about',
-      'audience': 'Who will read or see this',
-      'purpose': 'What should this achieve',
-      'key_points': 'What must be included',
-      'examples': 'Provide examples for reference.',
-      'requirements': 'Any special needs',
-      'constraints': 'Any limitations to consider',
-      'goals': 'What are you trying to accomplish',
-      'metrics': 'How will you measure success'
-    };
-
-    if (placeholderMap[variable]) {
-      return placeholderMap[variable];
-    }
-
-    // Fallback based on variable type WITHOUT slashes
-    if (variable.includes('tone') || variable.includes('style') || variable.includes('voice')) {
-      return 'Select the appropriate tone';
-    } else if (variable.includes('level') || variable.includes('complexity') || variable.includes('difficulty')) {
-      return 'Select expertise level';
-    } else if (variable.includes('length') || variable.includes('duration') || variable.includes('time')) {
-      return 'Select desired length';
-    } else if (variable.includes('type') || variable.includes('format') || variable.includes('category')) {
-      return 'Select from options';
-    } else {
-      return `Enter ${variable.replace(/_/g, ' ')}`;
-    }
-  };
-
-  // Helper function to get appropriate dropdown options based on variable name and template category
-  const getDropdownOptions = (variable, templateCategory) => {
-    // Make sure dropdownOptions exists
+  // Get dropdown options for ANY variable based on its name
+  const getDropdownOptionsForVariable = (variable) => {
     if (!dropdownOptions || typeof dropdownOptions !== 'object') {
-      console.error('dropdownOptions is not properly defined:', dropdownOptions);
       return [];
     }
 
+    // Medical and Health variables
+    if (variable.includes('tone') && (variable.includes('medical') || variable.includes('health') || variable.includes('clinical'))) {
+      return dropdownOptions.medicalTones || ['Professional', 'Clinical', 'Technical', 'Educational', 'Compassionate', 'Authoritative'];
+    }
+    if (variable.includes('complexity') || variable.includes('difficulty')) {
+      return dropdownOptions.expertiseLevels || ['Beginner', 'Intermediate', 'Advanced', 'Expert'];
+    }
+    if (variable.includes('demographic')) {
+      return ['Child (0-12)', 'Teenager (13-19)', 'Adult (20-64)', 'Senior (65+)', 'Male', 'Female', 'All ages'];
+    }
+    
+    // Business and Marketing variables
+    if (variable.includes('tone') && (variable.includes('business') || variable.includes('marketing'))) {
+      return dropdownOptions.businessTones || ['Professional', 'Persuasive', 'Informative', 'Conversational', 'Formal', 'Friendly'];
+    }
+    if (variable.includes('target_audience')) {
+      return ['Business Professionals', 'Entrepreneurs', 'Students', 'Consumers', 'Investors', 'General Public'];
+    }
+    if (variable.includes('brand_voice')) {
+      return ['Professional', 'Friendly', 'Authoritative', 'Innovative', 'Luxury', 'Casual'];
+    }
+    
+    // Creative Writing variables
+    if (variable.includes('genre')) {
+      return dropdownOptions.writingGenres || ['Fiction', 'Non-fiction', 'Fantasy', 'Sci-Fi', 'Mystery', 'Romance', 'Horror'];
+    }
+    if (variable.includes('writing_style')) {
+      return dropdownOptions.writingStyles || ['Descriptive', 'Narrative', 'Persuasive', 'Expository', 'Creative', 'Technical'];
+    }
+    if (variable.includes('theme')) {
+      return ['Love', 'Adventure', 'Conflict', 'Growth', 'Justice', 'Freedom', 'Identity'];
+    }
+    
     // Image Generation variables
-    if (variable.includes('style') && templateCategory?.includes('Image')) {
-      return dropdownOptions.imageStyles || [];
+    if (variable.includes('style') && variable.includes('image')) {
+      return dropdownOptions.imageStyles || ['Realistic', 'Photorealistic', 'Digital Art', 'Watercolor', 'Oil Painting', 'Sketch', 'Anime', 'Cartoon'];
     }
-    if (variable.includes('color') && (variable.includes('palette') || variable.includes('mood'))) {
-      return dropdownOptions.colorPalettes || [];
-    }
-    if (variable.includes('resolution') && !variable.includes('video')) {
-      return dropdownOptions.imageResolutions || [];
+    if (variable.includes('color_palette')) {
+      return dropdownOptions.colorPalettes || ['Warm', 'Cool', 'Vibrant', 'Pastel', 'Monochromatic', 'Earth Tones', 'Neon'];
     }
     if (variable.includes('lighting')) {
-      return dropdownOptions.lightingOptions || [];
+      return dropdownOptions.lightingOptions || ['Natural Light', 'Studio Lighting', 'Dramatic', 'Soft', 'Golden Hour', 'Night', 'Backlit'];
+    }
+    if (variable.includes('mood')) {
+      return ['Happy', 'Mysterious', 'Peaceful', 'Energetic', 'Melancholy', 'Inspiring', 'Serious'];
+    }
+    if (variable.includes('ai_model')) {
+      return dropdownOptions.aiPlatforms?.image || ['DALL-E 3', 'Midjourney', 'Stable Diffusion', 'Adobe Firefly'];
+    }
+    if (variable.includes('resolution')) {
+      return dropdownOptions.imageResolutions || ['1024x1024', '1024x1792', '1792x1024', '512x512', '768x768'];
     }
     
     // Video Generation variables
     if (variable.includes('video_style')) {
-      return dropdownOptions.videoStyles || [];
+      return dropdownOptions.videoStyles || ['Cinematic', 'Documentary', 'Animation', 'Tutorial', 'Promotional', 'Social Media'];
     }
-    if (variable.includes('video_resolution')) {
-      return dropdownOptions.videoResolutions || [];
-    }
-    if (variable.includes('frame_rate')) {
-      return dropdownOptions.frameRates || [];
+    if (variable.includes('video_length')) {
+      return dropdownOptions.videoLengths || ['15 seconds', '30 seconds', '1 minute', '2 minutes', '5 minutes', '10 minutes'];
     }
     if (variable.includes('aspect_ratio')) {
-      return dropdownOptions.aspectRatios || [];
+      return dropdownOptions.aspectRatios || ['16:9', '9:16', '1:1', '4:5', '21:9'];
+    }
+    if (variable.includes('frame_rate')) {
+      return dropdownOptions.frameRates || ['24fps', '30fps', '60fps', '120fps'];
+    }
+    if (variable.includes('video_resolution')) {
+      return dropdownOptions.videoResolutions || ['1080p', '4K', '720p', '1440p'];
+    }
+    if (variable.includes('video_ai_model')) {
+      return dropdownOptions.aiPlatforms?.video || ['Runway ML', 'Pika Labs', 'Sora', 'Stable Video'];
     }
     
-    // Business and Marketing variables
-    if (variable.includes('tone') && templateCategory?.includes('Business')) {
-      return dropdownOptions.businessTones || [];
+    // General variables - FALLBACK for ANY variable
+    if (variable.includes('tone') || variable.includes('style') || variable.includes('voice')) {
+      return ['Professional', 'Casual', 'Formal', 'Friendly', 'Authoritative', 'Conversational', 'Technical'];
     }
-    
-    // General variables
     if (variable.includes('level') || variable.includes('complexity') || variable.includes('difficulty')) {
-      return dropdownOptions.expertiseLevels || [];
+      return ['Beginner', 'Intermediate', 'Advanced', 'Expert'];
     }
     if (variable.includes('length') || variable.includes('duration')) {
-      return dropdownOptions.lengths || [];
+      return dropdownOptions.lengths || ['Short', 'Medium', 'Long', 'Detailed'];
     }
-    if (variable.includes('writing_style')) {
-      return dropdownOptions.writingStyles || [];
+    if (variable.includes('format')) {
+      return ['Paragraph', 'List', 'Step-by-step', 'Bullet points', 'Essay', 'Report'];
+    }
+    if (variable.includes('language')) {
+      return ['English', 'Spanish', 'French', 'German', 'Chinese', 'Japanese', 'Korean'];
+    }
+    if (variable.includes('audience')) {
+      return ['General Public', 'Experts', 'Students', 'Professionals', 'Beginners', 'Advanced Users'];
     }
     
+    // Default empty array - will render as text input
     return [];
+  };
+
+  // Check if variable should use dropdown
+  const shouldUseDropdown = (variable) => {
+    const options = getDropdownOptionsForVariable(variable);
+    return options.length > 0;
+  };
+
+  // Get placeholder text
+  const getPlaceholderText = (variable) => {
+    if (shouldUseDropdown(variable)) {
+      return 'Select an option';
+    }
+    
+    const placeholderMap = {
+      'presentation': 'Describe how the condition looks and feels',
+      'diagnosis_considerations': 'List possible conditions to analyze',
+      'treatment_approach': 'Describe the recommended care steps',
+      'condition': 'Example: swelling in left ankle',
+      'demographic': 'Example: 45 year old male',
+      'subject': 'What is the main focus',
+      'plot_summary': 'Brief overview of the story',
+      'character_descriptions': 'Describe main characters',
+      'video_subject': 'Describe the scene or action',
+      'topic': 'What is this about',
+      'key_points': 'What must be included',
+      'examples': 'Provide examples for reference'
+    };
+
+    return placeholderMap[variable] || `Enter ${variable.replace(/_/g, ' ')}`;
   };
 
   // Filter templates by category and search
@@ -458,7 +412,7 @@ function App() {
         category: response.data.category || response.data.template?.category || '',
         subcategory: response.data.subcategory || response.data.template?.subcategory || '',
         metadata: response.data.metadata || {},
-        expert_level: response.data.template?.expert_level || 'Professional'
+        expert_level: 'Professional'
       });
       
     } catch (error) {
@@ -476,95 +430,7 @@ function App() {
     setLoading(false);
   };
 
-  const generateAIResponse = async () => {
-    if (!generatedPrompt?.prompt) {
-      alert('Please generate a prompt first');
-      return;
-    }
-    
-    setAiLoading(true);
-    
-    try {
-      const response = await templateAPI.generateAI(generatedPrompt.prompt, aiProvider);
-      setAiContent({
-        content: response.data.content || '',
-        provider: response.data.provider || aiProvider,
-        tokens: response.data.tokens || 0,
-        wordCount: response.data.wordCount || (response.data.content ? response.data.content.split(/\s+/).length : 0),
-        quality: response.data.quality || 'Standard',
-        enhancement: response.data.enhancement || ''
-      });
-      
-    } catch (error) {
-      console.error('AI Generation Error:', error);
-      setAiContent({
-        content: `Error: ${error.response?.data?.error || 'AI generation failed. Please check your API keys.'}`,
-        provider: aiProvider,
-        tokens: 0,
-        wordCount: 0,
-        quality: 'Error',
-        enhancement: ''
-      });
-    }
-    
-    setAiLoading(false);
-  };
-
-  const generateCompleteWorkflow = async () => {
-    if (!selectedTemplate) {
-      alert('Please select a template first');
-      return;
-    }
-
-    setLoading(true);
-    setAiLoading(true);
-    setGeneratedPrompt(null);
-    setAiContent(null);
-    setExpandedSection('results');
-    
-    try {
-      const response = await templateAPI.completeWorkflow(selectedTemplate, inputs, aiProvider);
-      
-      const templateName = response.data.template?.name || 
-                          response.data.template?.id || 
-                          currentTemplate?.name || 
-                          selectedTemplate;
-      
-      setGeneratedPrompt({
-        prompt: response.data.prompt || '',
-        template: templateName,
-        category: response.data.template?.category || '',
-        subcategory: response.data.template?.subcategory || '',
-        metadata: response.data.metadata || {},
-        expert_level: response.data.template?.expert_level || 'Professional'
-      });
-      
-      setAiContent({
-        content: response.data.aiResponse?.content || '',
-        provider: response.data.aiResponse?.provider || aiProvider,
-        tokens: response.data.aiResponse?.tokens || 0,
-        wordCount: response.data.aiResponse?.wordCount || 
-                  (response.data.aiResponse?.content ? response.data.aiResponse.content.split(/\s+/).length : 0),
-        quality: response.data.aiResponse?.quality || 'Standard',
-        enhancement: response.data.aiResponse?.enhancement || '',
-        category_optimized: response.data.aiResponse?.category_optimized || false
-      });
-      
-    } catch (error) {
-      console.error('Complete Workflow Error:', error);
-      setGeneratedPrompt({
-        prompt: 'Error in complete workflow. Please try again.',
-        template: 'Error',
-        category: 'Error',
-        subcategory: '',
-        metadata: {},
-        expert_level: 'Error'
-      });
-    }
-    
-    setLoading(false);
-    setAiLoading(false);
-  };
+  // REMOVED: generateAIResponse function since we don't want AI analysis tab
 
   const copyToClipboard = async (text) => {
     try {
@@ -598,90 +464,12 @@ ${generatedPrompt.prompt}`;
     URL.revokeObjectURL(url);
   };
 
-  const exportAIContent = () => {
-    if (!aiContent) return;
-    
-    const content = `PROMPT GENIUS AI EXPERT RESPONSE
-Provider: ${aiContent.provider}
-Quality: ${aiContent.quality}
-Tokens: ${aiContent.tokens}
-Generated: ${new Date().toISOString()}
-Enhancement: ${aiContent.enhancement || 'Standard'}
-
-${aiContent.content}`;
-    
-    const blob = new Blob([content], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `ai-expert-response-${Date.now()}.txt`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
-
-  // Function to render AI content with beautiful formatting WITHOUT dashes
-  const renderAIContent = (content) => {
-    if (!content) return content;
-    
-    // Convert markdown-style formatting to HTML WITHOUT DASHES
-    const formattedContent = content
-      // Headers
-      .replace(/^# (.*$)/gim, '<h1 class="ai-header">$1</h1>')
-      .replace(/^## (.*$)/gim, '<h2 class="ai-subheader">$1</h2>')
-      .replace(/^### (.*$)/gim, '<h3 class="ai-subsubheader">$1</h3>')
-      .replace(/^#### (.*$)/gim, '<h4 class="ai-section">$1</h4>')
-      // Bold
-      .replace(/\*\*(.*?)\*\*/gim, '<strong class="ai-bold">$1</strong>')
-      // Italic
-      .replace(/\*(.*?)\*/gim, '<em class="ai-italic">$1</em>')
-      // Lists - NO DASHES, use numbers or bullets
-      .replace(/^[*-] (.*$)/gim, '<li class="ai-list-item">• $1</li>') // Use bullet instead of dash
-      .replace(/^(\d+)\. (.*$)/gim, '<li class="ai-ordered-item">$1. $2</li>')
-      // Code blocks
-      .replace(/```([\s\S]*?)```/g, '<pre class="ai-code-block"><code>$1</code></pre>')
-      .replace(/`(.*?)`/g, '<code class="ai-inline-code">$1</code>')
-      // Blockquotes
-      .replace(/^> (.*$)/gim, '<blockquote class="ai-blockquote">$1</blockquote>')
-      // Line breaks
-      .replace(/\n\n/g, '</p><p class="ai-paragraph">')
-      .replace(/\n/g, '<br>')
-      // Remove any remaining dashes at start of lines
-      .replace(/^- /gm, '• ');
-    
-    // Wrap in paragraph if no HTML tags yet
-    if (!formattedContent.includes('<')) {
-      return `<p class="ai-paragraph">${formattedContent}</p>`;
-    }
-    
-    // Wrap loose list items in ul/ol
-    let withLists = formattedContent;
-    const listItemRegex = /<li class="ai-list-item">(.*?)<\/li>/g;
-    const listMatches = [...withLists.matchAll(listItemRegex)];
-    
-    if (listMatches.length > 0) {
-      withLists = withLists.replace(listItemRegex, '</ul><ul class="ai-unordered-list"><li class="ai-list-item">$1</li>');
-      withLists = withLists.replace('</ul>', '', 1) + '</ul>';
-    }
-    
-    const orderedItemRegex = /<li class="ai-ordered-item">(.*?)<\/li>/g;
-    const orderedMatches = [...withLists.matchAll(orderedItemRegex)];
-    
-    if (orderedMatches.length > 0) {
-      withLists = withLists.replace(orderedItemRegex, '</ol><ol class="ai-ordered-list"><li class="ai-ordered-item">$1</li>');
-      withLists = withLists.replace('</ol>', '', 1) + '</ol>';
-    }
-    
-    return withLists;
-  };
-
   // Connection test function
   const testBackendConnection = async () => {
     try {
       const result = await testConnection();
       if (result.success) {
-        alert(`✅ Backend Connected\n\nTemplates: ${result.data.services?.templates || 0}\nOpenAI: ${result.data.services?.openai ? 'Active' : 'Inactive'}\nGPT Version: ${result.data.services?.gpt_version || 'Unknown'}`);
+        alert(`✅ Backend Connected\n\nTemplates: ${result.data.services?.templates || 0}\nAI Service: ${result.data.services?.openai ? 'Active' : 'Inactive'}`);
         checkAPIHealth();
       } else {
         alert(`❌ Connection Failed\n\nURL: ${result.url}\nError: ${result.error}`);
@@ -692,7 +480,7 @@ ${aiContent.content}`;
     }
   };
 
-  // Mobile sidebar toggle with auto-close
+  // Mobile sidebar toggle
   const toggleMobileSidebar = () => {
     setSidebarOpen(!sidebarOpen);
   };
@@ -701,84 +489,46 @@ ${aiContent.content}`;
   const handleTemplateSelect = (templateId) => {
     setSelectedTemplate(templateId);
     setExpandedSection('customize');
-    // Auto-close sidebar on mobile when selecting a template
     if (window.innerWidth <= 1024) {
       setSidebarOpen(false);
     }
   };
 
-  // Render input field based on variable type
+  // Render input field - ALL categories get dropdowns where possible
   const renderInputField = (variable) => {
-    try {
-      const dropdownOptionsList = getDropdownOptions(variable, currentTemplate?.category);
-      const hasDropdown = dropdownOptionsList.length > 0;
-      
-      // Special handling for AI model selection
-      if (variable === 'ai_model' || variable === 'video_ai_model') {
-        const platforms = dropdownOptions.aiPlatforms || {};
-        const platformList = variable === 'video_ai_model' 
-          ? platforms.video || [] 
-          : platforms.image || [];
-        
-        return (
-          <select
-            value={inputs[variable] || ''}
-            onChange={(e) => handleInputChange(variable, e.target.value)}
-            className="input-field"
-          >
-            <option value="">Select AI platform</option>
-            {platformList.map(platform => (
-              <option key={platform.value} value={platform.value}>
-                {platform.label}
-              </option>
-            ))}
-          </select>
-        );
-      }
-      
-      // Dropdown fields
-      if (hasDropdown) {
-        return (
-          <select
-            value={inputs[variable] || ''}
-            onChange={(e) => handleInputChange(variable, e.target.value)}
-            className="input-field"
-          >
-            <option value="">Select {formatVariableLabel(variable).toLowerCase()}</option>
-            {dropdownOptionsList.map(option => (
-              <option key={option} value={option}>{option}</option>
-            ))}
-          </select>
-        );
-      }
-      
-      // Text input for Main Subject and other free-text fields
+    const dropdownOptionsList = getDropdownOptionsForVariable(variable);
+    const hasDropdown = dropdownOptionsList.length > 0;
+    
+    if (hasDropdown) {
       return (
-        <input
-          type="text"
-          placeholder={getPlaceholderText(variable)}
+        <select
           value={inputs[variable] || ''}
           onChange={(e) => handleInputChange(variable, e.target.value)}
           className="input-field"
-        />
-      );
-    } catch (error) {
-      console.error('Error in renderInputField:', error, 'for variable:', variable);
-      return (
-        <input
-          type="text"
-          placeholder={`Error loading field: ${variable}`}
-          value={inputs[variable] || ''}
-          onChange={(e) => handleInputChange(variable, e.target.value)}
-          className="input-field"
-        />
+        >
+          <option value="">Select {formatVariableLabel(variable).toLowerCase()}</option>
+          {dropdownOptionsList.map((option, index) => (
+            <option key={index} value={option}>{option}</option>
+          ))}
+        </select>
       );
     }
+    
+    // Text input for free-text fields
+    return (
+      <input
+        type="text"
+        placeholder={getPlaceholderText(variable)}
+        value={inputs[variable] || ''}
+        onChange={(e) => handleInputChange(variable, e.target.value)}
+        className="input-field"
+      />
+    );
   };
 
   return (
     <div className="app">
-      {/* Header */}
+      {/* Header - REMOVED all AI branding */}
       <header className="header">
         <div className="header-content">
           <button 
@@ -793,26 +543,14 @@ ${aiContent.content}`;
           <div className="logo">
             <Sparkles className="logo-icon" />
             <h1>Prompt<span className="gradient-text">Genius</span></h1>
-            <div className="badge">{templates.length}+ EXPERT TEMPLATES</div>
+            <div className="badge">{templates.length}+ Templates</div>
           </div>
           
           <div className="ai-status">
             <div className="status-item">
               <Bot size={16} />
-              <span>GPT 5.2 Expert</span>
+              <span>AI Ready</span>
               <div className={`status-dot ${apiStatus.openai ? 'live' : 'offline'}`}></div>
-            </div>
-            <div className="expert-mode-toggle">
-              <label className="checkbox-label">
-                <input 
-                  type="checkbox" 
-                  checked={expertMode}
-                  onChange={(e) => setExpertMode(e.target.checked)}
-                  style={{ marginRight: '8px' }}
-                />
-                <span>Expert Mode</span>
-                <Crown size={14} style={{ marginLeft: '4px' }} />
-              </label>
             </div>
           </div>
         </div>
@@ -824,7 +562,7 @@ ${aiContent.content}`;
           <div className="sidebar-header">
             <h3>
               <Layers className="icon" />
-              Expert Categories
+              Categories
             </h3>
             <div className="view-controls">
               <button 
@@ -885,7 +623,7 @@ ${aiContent.content}`;
             <Search size={18} />
             <input
               type="text"
-              placeholder="Search expert templates"
+              placeholder="Search templates"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="search-input"
@@ -939,9 +677,6 @@ ${aiContent.content}`;
                     <div className="template-tags">
                       <span className="tag category">{template.category}</span>
                       <span className="tag subcategory">{template.subcategory}</span>
-                      {template.expert_level === 'Professional' && (
-                        <span className="tag premium">Expert</span>
-                      )}
                     </div>
                   </div>
                 </div>
@@ -961,8 +696,8 @@ ${aiContent.content}`;
                 <span className="stat-label">Categories</span>
               </div>
               <div className="stat">
-                <span className="stat-number">{apiStatus.openai ? 'GPT 5.2' : 'Offline'}</span>
-                <span className="stat-label">AI Status</span>
+                <span className="stat-number">{apiStatus.openai ? 'Ready' : 'Offline'}</span>
+                <span className="stat-label">Status</span>
               </div>
             </div>
           </div>
@@ -974,14 +709,14 @@ ${aiContent.content}`;
           {connectionStatus === 'checking' && (
             <div className="connection-banner checking">
               <RefreshCw className="spinner-icon" size={16} />
-              <span>Checking backend connection</span>
+              <span>Checking connection</span>
             </div>
           )}
           
           {connectionStatus === 'disconnected' && (
             <div className="connection-banner disconnected">
               <X size={16} />
-              <span>Backend connection failed</span>
+              <span>Connection failed</span>
               <button onClick={testBackendConnection} className="retry-btn">
                 Retry
               </button>
@@ -1005,7 +740,7 @@ ${aiContent.content}`;
               >
                 <h3>
                   <Layers className="icon" />
-                  {selectedCategory === 'All Categories' ? 'All Expert Templates' : `${selectedCategory} Templates`}
+                  {selectedCategory === 'All Categories' ? 'All Templates' : `${selectedCategory} Templates`}
                   <span className="count-badge">{filteredTemplates.length}</span>
                 </h3>
                 {expandedSection === 'templates' ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
@@ -1034,7 +769,7 @@ ${aiContent.content}`;
                       </div>
                       <div className="stat-info">
                         <div className="stat-value">{templates.filter(t => t.expert_level === 'Professional').length}</div>
-                        <div className="stat-label">Expert Templates</div>
+                        <div className="stat-label">Premium</div>
                       </div>
                     </div>
                     <div className="stat-card">
@@ -1043,7 +778,7 @@ ${aiContent.content}`;
                       </div>
                       <div className="stat-info">
                         <div className="stat-value">{categories.length}</div>
-                        <div className="stat-label">Specializations</div>
+                        <div className="stat-label">Categories</div>
                       </div>
                     </div>
                     <div className="stat-card">
@@ -1051,8 +786,8 @@ ${aiContent.content}`;
                         <Brain size={20} />
                       </div>
                       <div className="stat-info">
-                        <div className="stat-value">GPT 5.2</div>
-                        <div className="stat-label">AI Model</div>
+                        <div className="stat-value">AI</div>
+                        <div className="stat-label">Powered</div>
                       </div>
                     </div>
                   </div>
@@ -1075,7 +810,7 @@ ${aiContent.content}`;
               >
                 <h3>
                   <PenTool className="icon" />
-                  Expert Prompt Customization
+                  Customize Prompt
                   {currentTemplate && (
                     <span className="template-name">{currentTemplate.name}</span>
                   )}
@@ -1092,7 +827,7 @@ ${aiContent.content}`;
                         {currentTemplate.expert_level === 'Professional' && (
                           <span className="expert-badge">
                             <Crown size={14} />
-                            Expert Grade
+                            Premium
                           </span>
                         )}
                       </h4>
@@ -1101,7 +836,7 @@ ${aiContent.content}`;
                         <span className="tag subcategory">{currentTemplate.subcategory}</span>
                         <span className="tag ai">
                           <Zap size={12} />
-                          GPT 5.2 Optimized
+                          AI Optimized
                         </span>
                       </div>
                     </div>
@@ -1124,14 +859,7 @@ ${aiContent.content}`;
                         <label>
                           <strong>{formatVariableLabel(variable)}</strong>
                           <span className="hint">
-                            {variable.includes('tone') || variable.includes('style') || 
-                             variable.includes('level') || variable.includes('complexity') ||
-                             variable.includes('length') || variable.includes('duration') ||
-                             variable.includes('type') || variable.includes('format') ||
-                             variable.includes('category') || variable.includes('genre') ||
-                             variable.includes('language') || variable.includes('ai_model') ||
-                             variable.includes('resolution') || variable.includes('color') ||
-                             variable.includes('lighting') || variable.includes('video_') ? 
+                            {shouldUseDropdown(variable) ? 
                              'Select option for best results' : 
                              'Be specific for best results'}
                           </span>
@@ -1143,7 +871,7 @@ ${aiContent.content}`;
                   </div>
 
                   <div className="expert-options">
-                    <h4>Expert Configuration</h4>
+                    <h4>Configuration Options</h4>
                     <div className="options-grid">
                       <div className="option-group">
                         <label className="checkbox-label">
@@ -1166,7 +894,7 @@ ${aiContent.content}`;
                       <div className="option-group">
                         <label className="checkbox-label">
                           <input type="checkbox" defaultChecked />
-                          <span>Optimize for AI</span>
+                          <span>Optimize Output</span>
                         </label>
                       </div>
                     </div>
@@ -1181,7 +909,7 @@ ${aiContent.content}`;
                       {loading ? (
                         <>
                           <RefreshCw className="spinner-icon" />
-                          Generating Expert Prompt
+                          Generating Prompt
                         </>
                       ) : (
                         <>
@@ -1190,30 +918,12 @@ ${aiContent.content}`;
                         </>
                       )}
                     </button>
-                    
-                    <button
-                      onClick={generateAIResponse}
-                      disabled={aiLoading}
-                      className="action-btn success"
-                    >
-                      {aiLoading ? (
-                        <>
-                          <RefreshCw className="spinner-icon" />
-                          Generating AI Analysis
-                        </>
-                      ) : (
-                        <>
-                          <Brain size={18} />
-                          Get AI Expert Analysis
-                        </>
-                      )}
-                    </button>
                   </div>
                 </div>
               )}
             </div>
 
-            {/* Results Section */}
+            {/* Results Section - SIMPLIFIED, NO AI ANALYSIS */}
             {generatedPrompt && (
               <div className="section-card">
                 <div 
@@ -1229,10 +939,10 @@ ${aiContent.content}`;
                 >
                   <h3>
                     <Sparkles className="icon" />
-                    Expert Results
+                    Generated Prompt
                     <span className="results-badge">
                       <Diamond size={12} />
-                      Professional Grade
+                      Ready
                     </span>
                   </h3>
                   {expandedSection === 'results' ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
@@ -1240,13 +950,13 @@ ${aiContent.content}`;
                 
                 {expandedSection === 'results' && (
                   <div className="section-content">
-                    {/* Generated Prompt */}
+                    {/* Generated Prompt Only */}
                     <div className="result-card">
                       <div className="result-header">
                         <h4>
                           <Crown size={18} style={{ marginRight: '8px' }} />
-                          Expert Grade Prompt
-                          <span className="ai-model">{generatedPrompt.expert_level}</span>
+                          Expert Prompt
+                          <span className="ai-model">Premium</span>
                         </h4>
                         <div className="result-actions">
                           <button
@@ -1272,102 +982,16 @@ ${aiContent.content}`;
                           <strong>Template</strong> {generatedPrompt.template || 'N A'}
                         </div>
                         <div className="meta-item">
-                          <strong>Specialization</strong> {generatedPrompt.category || 'N A'} {generatedPrompt.subcategory || 'N A'}
+                          <strong>Category</strong> {generatedPrompt.category || 'N A'} {generatedPrompt.subcategory || 'N A'}
                         </div>
                         <div className="meta-item">
-                          <strong>Expert Level</strong> {generatedPrompt.expert_level || 'Professional'}
+                          <strong>Quality</strong> {generatedPrompt.expert_level || 'Premium'}
                         </div>
                         <div className="meta-item">
-                          <strong>Complexity</strong> {generatedPrompt.metadata?.complexity || 'High'}
+                          <strong>Complexity</strong> {generatedPrompt.metadata?.complexity || 'Advanced'}
                         </div>
-                        <div className="meta-item">
-                          <strong>Quality</strong> {generatedPrompt.metadata?.quality || 'Expert Grade'}
-                        </div>
-                      </div>
-
-                      {/* AI Actions */}
-                      <div className="ai-actions">
-                        <button
-                          onClick={generateAIResponse}
-                          disabled={aiLoading}
-                          className="ai-action-btn"
-                        >
-                          {aiLoading ? (
-                            <>
-                              <RefreshCw className="spinner-icon" />
-                              Generating AI Expert Response
-                            </>
-                          ) : (
-                            <>
-                              <Brain size={18} />
-                              Get GPT 5.2 Expert Analysis
-                            </>
-                          )}
-                        </button>
                       </div>
                     </div>
-
-                    {/* AI Response */}
-                    {aiContent && (
-                      <div className="result-card ai-response expert">
-                        <div className="result-header">
-                          <h4>
-                            <Brain size={18} style={{ marginRight: '8px' }} />
-                            AI Expert Response
-                            <span className="ai-model">
-                              {aiContent.provider === 'openai' ? 'GPT 5.2' : 'Gemini Pro'} {aiContent.quality}
-                            </span>
-                          </h4>
-                          <div className="result-actions">
-                            <button
-                              onClick={() => copyToClipboard(aiContent.content)}
-                              className="action-btn small"
-                            >
-                              {copied ? <Check size={16} /> : <Copy size={16} />}
-                              Copy
-                            </button>
-                            <button onClick={exportAIContent} className="action-btn small">
-                              <Download size={16} />
-                              Export
-                            </button>
-                          </div>
-                        </div>
-                        
-                        <div className="ai-content expert">
-                          <div 
-                            dangerouslySetInnerHTML={{ 
-                              __html: renderAIContent(aiContent.content) 
-                            }} 
-                          />
-                        </div>
-
-                        <div className="result-meta expert">
-                          <div className="meta-item">
-                            <strong>AI Provider</strong> {aiContent.provider === 'openai' ? 'GPT 5.2 Turbo' : 'Gemini Pro'}
-                          </div>
-                          {aiContent.wordCount && (
-                            <div className="meta-item">
-                              <strong>Analysis Depth</strong> {aiContent.wordCount} words
-                            </div>
-                          )}
-                          {aiContent.tokens && (
-                            <div className="meta-item">
-                              <strong>Processing</strong> {aiContent.tokens} tokens
-                            </div>
-                          )}
-                          {aiContent.enhancement && (
-                            <div className="meta-item">
-                              <strong>Enhancement</strong> {aiContent.enhancement}
-                            </div>
-                          )}
-                          {aiContent.category_optimized && (
-                            <div className="meta-item">
-                              <strong>Optimization</strong> Category specific
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    )}
                   </div>
                 )}
               </div>
@@ -1383,7 +1007,7 @@ ${aiContent.content}`;
                 </div>
                 <div className="stat-info">
                   <div className="stat-value">{templates.length}</div>
-                  <div className="stat-label">Expert Templates</div>
+                  <div className="stat-label">Templates</div>
                 </div>
               </div>
               
@@ -1392,8 +1016,8 @@ ${aiContent.content}`;
                   <Brain size={20} />
                 </div>
                 <div className="stat-info">
-                  <div className="stat-value">{apiStatus.openai ? 'GPT 5.2' : 'Offline'}</div>
-                  <div className="stat-label">AI Engine</div>
+                  <div className="stat-value">{apiStatus.openai ? 'Ready' : 'Offline'}</div>
+                  <div className="stat-label">AI Service</div>
                 </div>
               </div>
               
@@ -1403,7 +1027,7 @@ ${aiContent.content}`;
                 </div>
                 <div className="stat-info">
                   <div className="stat-value">{categories.length}</div>
-                  <div className="stat-label">Specializations</div>
+                  <div className="stat-label">Categories</div>
                 </div>
               </div>
               
@@ -1412,8 +1036,8 @@ ${aiContent.content}`;
                   <BarChart size={20} />
                 </div>
                 <div className="stat-info">
-                  <div className="stat-value">Expert</div>
-                  <div className="stat-label">Quality Level</div>
+                  <div className="stat-value">Premium</div>
+                  <div className="stat-label">Quality</div>
                 </div>
               </div>
             </div>
@@ -1429,12 +1053,12 @@ ${aiContent.content}`;
         </div>
       )}
 
-      {/* Connection Test Button (Bottom Right) */}
+      {/* Connection Test Button */}
       <div className="connection-test-fab">
         <button 
           onClick={testBackendConnection}
           className={`connection-btn ${connectionStatus}`}
-          title="Test Backend Connection"
+          title="Test Connection"
           aria-label="Test connection"
         >
           {connectionStatus === 'connected' ? (
