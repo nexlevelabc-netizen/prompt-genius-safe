@@ -55,7 +55,7 @@ body {
   overflow-x: hidden;
 }
 
-/* Header */
+/* Header - Clean, no AI branding */
 .header {
   background: rgba(15, 23, 42, 0.95);
   backdrop-filter: blur(10px);
@@ -157,7 +157,7 @@ body {
   }
 }
 
-/* AI Status */
+/* AI Status - Simplified */
 .ai-status {
   display: flex;
   flex-wrap: wrap;
@@ -193,31 +193,6 @@ body {
 
 .status-dot.offline {
   background: var(--danger);
-}
-
-.expert-mode-toggle {
-  background: rgba(245, 158, 11, 0.1);
-  border: 1px solid rgba(245, 158, 11, 0.3);
-  border-radius: 8px;
-  padding: 0.5rem 0.75rem;
-  font-size: 0.85rem;
-}
-
-.expert-mode-toggle .checkbox-label {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.85rem;
-  color: #fbbf24;
-  font-weight: 500;
-  cursor: pointer;
-}
-
-.expert-mode-toggle input[type="checkbox"] {
-  width: 16px;
-  height: 16px;
-  accent-color: #f59e0b;
-  cursor: pointer;
 }
 
 /* Main Layout */
@@ -353,7 +328,7 @@ body {
   color: inherit;
 }
 
-/* FIXED: Category Select Dropdown - DARK BACKGROUND */
+/* Category Select Dropdown - DARK BACKGROUND */
 .category-select {
   width: 100%;
   background: rgba(15, 23, 42, 0.9) !important;
@@ -372,7 +347,6 @@ body {
   font-weight: 500;
 }
 
-/* FIXED: Dropdown options DARK background */
 .category-select option {
   background-color: #0f172a !important;
   color: var(--light) !important;
@@ -386,7 +360,7 @@ body {
   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1) !important;
 }
 
-/* FIXED: All select elements DARK background */
+/* All select elements DARK background */
 select {
   background-color: rgba(15, 23, 42, 0.9) !important;
   color: var(--light) !important;
@@ -903,7 +877,7 @@ select option:checked {
   color: var(--light);
 }
 
-/* FIXED: Input Fields with proper dropdown visibility */
+/* Input Fields with dropdowns */
 .input-field {
   width: 100%;
   background: rgba(15, 23, 42, 0.9) !important;
@@ -925,7 +899,7 @@ select option:checked {
   background: rgba(255, 255, 255, 0.08) !important;
 }
 
-/* FIXED: Select dropdowns with DARK background */
+/* Select dropdowns */
 select.input-field {
   color: var(--light) !important;
   background-color: rgba(15, 23, 42, 0.9) !important;
@@ -1093,10 +1067,6 @@ select.input-field option:hover {
   border-color: var(--primary);
 }
 
-.result-card.ai-response {
-  border-left: 4px solid var(--primary);
-}
-
 .result-card.expert {
   border-left: 4px solid var(--warning);
   background: rgba(245, 158, 11, 0.05);
@@ -1139,9 +1109,8 @@ select.input-field option:hover {
   color: var(--primary);
 }
 
-/* Prompt Output - CLEAN FORMATTING (NO DASHES) */
-.prompt-output,
-.ai-content {
+/* Prompt Output */
+.prompt-output {
   background: linear-gradient(145deg, #1a1f3a 0%, #0d1229 100%);
   border: 1px solid rgba(99, 102, 241, 0.2);
   border-radius: 20px;
@@ -1162,13 +1131,7 @@ select.input-field option:hover {
   background: linear-gradient(145deg, #1c1a2e 0%, #0f172a 100%);
 }
 
-.ai-content.expert {
-  border-left: 4px solid #10b981;
-  background: linear-gradient(145deg, #0f172a 0%, #1e293b 100%);
-}
-
-.prompt-output pre,
-.ai-content pre {
+.prompt-output pre {
   white-space: pre-wrap;
   word-wrap: break-word;
   line-height: 1.6;
@@ -1178,154 +1141,6 @@ select.input-field option:hover {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   font-weight: 400;
   letter-spacing: 0.2px;
-}
-
-/* Enhanced AI Content Styling - CLEAN (NO DASHES) */
-.ai-header {
-  font-size: 2rem;
-  line-height: 1.2;
-  margin: 1.5rem 0 1rem 0;
-  background: linear-gradient(90deg, #6366f1, #8b5cf6, #ec4899);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  font-weight: 700;
-  letter-spacing: -0.5px;
-}
-
-.ai-subheader {
-  font-size: 1.75rem;
-  line-height: 1.3;
-  margin: 1.5rem 0 1rem 0;
-  color: #8b5cf6;
-  border-left: 4px solid #8b5cf6;
-  padding-left: 1rem;
-  font-weight: 600;
-}
-
-.ai-subsubheader {
-  font-size: 1.5rem;
-  line-height: 1.4;
-  margin: 1.25rem 0 0.75rem 0;
-  color: #a78bfa;
-  font-weight: 600;
-}
-
-.ai-section {
-  font-size: 1.25rem;
-  line-height: 1.5;
-  margin: 1rem 0 0.5rem 0;
-  color: #c4b5fd;
-  font-weight: 600;
-}
-
-.ai-paragraph {
-  margin: 1rem 0;
-  line-height: 1.8;
-  color: #e2e8f0;
-  font-size: 1rem;
-  font-weight: 400;
-}
-
-.ai-bold {
-  font-weight: 700;
-  color: #fbbf24;
-}
-
-.ai-italic {
-  font-style: italic;
-  color: #a78bfa;
-}
-
-/* CLEAN LISTS - NO DASHES, use bullets or numbers */
-.ai-unordered-list,
-.ai-ordered-list {
-  margin: 1.5rem 0 1.5rem 1.5rem;
-  padding-left: 0;
-  list-style: none;
-}
-
-.ai-list-item,
-.ai-ordered-item {
-  margin: 0.75rem 0;
-  padding-left: 0.5rem;
-  color: #e2e8f0;
-  font-size: 1rem;
-  line-height: 1.6;
-}
-
-.ai-unordered-list .ai-list-item:before {
-  content: "•";
-  color: #6366f1;
-  font-weight: bold;
-  margin-right: 10px;
-  font-size: 1.2rem;
-}
-
-.ai-ordered-list {
-  counter-reset: item;
-}
-
-.ai-ordered-list .ai-ordered-item {
-  counter-increment: item;
-}
-
-.ai-ordered-list .ai-ordered-item:before {
-  content: counter(item) ". ";
-  color: #6366f1;
-  font-weight: bold;
-  margin-right: 10px;
-  font-size: 1.1rem;
-}
-
-.ai-code-block {
-  background: #0f172a;
-  border: 1px solid #1e293b;
-  border-radius: 8px;
-  padding: 1.25rem;
-  margin: 1.25rem 0;
-  overflow-x: auto;
-  font-family: 'JetBrains Mono', monospace;
-}
-
-.ai-inline-code {
-  background: rgba(99, 102, 241, 0.15);
-  padding: 0.2rem 0.5rem;
-  border-radius: 4px;
-  font-family: 'JetBrains Mono', monospace;
-  color: #8b5cf6;
-  font-size: 0.9em;
-  font-weight: 500;
-}
-
-.ai-blockquote {
-  border-left: 4px solid #6366f1;
-  padding: 1.25rem 1.5rem;
-  margin: 1.5rem 0;
-  background: rgba(99, 102, 241, 0.08);
-  border-radius: 0 8px 8px 0;
-  font-style: italic;
-  color: #cbd5e1;
-  font-size: 1.05rem;
-}
-
-/* CLEAN: Remove all dashes from lists */
-.ai-content ul li:before {
-  content: "•";
-  color: #6366f1;
-  font-weight: bold;
-  position: absolute;
-  left: -1.5rem;
-  font-size: 1.2rem;
-}
-
-.ai-content ol li:before {
-  content: counter(item) ". ";
-  color: #6366f1;
-  font-weight: bold;
-  position: absolute;
-  left: -1.5rem;
-  font-size: 1.2rem;
 }
 
 /* Result Meta */
@@ -1363,35 +1178,6 @@ select.input-field option:hover {
 .meta-item strong {
   color: var(--primary);
   font-weight: 600;
-}
-
-/* AI Actions */
-.ai-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  margin-top: 1rem;
-  padding-top: 1rem;
-  border-top: 1px solid var(--glass-border);
-}
-
-.ai-action-btn {
-  width: 100%;
-  padding: 0.75rem 1rem;
-  background: linear-gradient(135deg, var(--primary), var(--secondary));
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  cursor: pointer;
-  transition: all 0.3s;
-  font-size: 0.9rem;
-  font-weight: 600;
-  letter-spacing: 0.3px;
 }
 
 /* Quick Stats Footer */
@@ -1590,14 +1376,6 @@ select.input-field option:hover {
     border-right: none;
   }
   
-  .ai-actions {
-    flex-direction: row;
-  }
-  
-  .ai-action-btn {
-    flex: 1;
-  }
-  
   .quick-stats {
     grid-template-columns: repeat(4, 1fr);
   }
@@ -1609,22 +1387,9 @@ select.input-field option:hover {
     max-width: 300px;
   }
   
-  .prompt-output,
-  .ai-content {
+  .prompt-output {
     padding: 2rem;
     font-size: 1rem;
-  }
-  
-  .ai-header {
-    font-size: 2.5rem;
-  }
-  
-  .ai-subheader {
-    font-size: 2rem;
-  }
-  
-  .ai-subsubheader {
-    font-size: 1.75rem;
   }
 }
 
@@ -1716,26 +1481,9 @@ select.input-field option:hover {
     right: 2rem;
   }
   
-  .prompt-output,
-  .ai-content {
+  .prompt-output {
     padding: 2.5rem;
     max-height: 600px;
-  }
-  
-  .ai-header {
-    font-size: 3rem;
-  }
-  
-  .ai-subheader {
-    font-size: 2.5rem;
-  }
-  
-  .ai-subsubheader {
-    font-size: 2rem;
-  }
-  
-  .ai-paragraph {
-    font-size: 1.125rem;
   }
 }
 
@@ -1747,7 +1495,6 @@ select.input-field option:hover {
   .category-chip,
   .template-card,
   .action-btn,
-  .ai-action-btn,
   .result-actions .action-btn.small {
     min-height: 44px;
   }
