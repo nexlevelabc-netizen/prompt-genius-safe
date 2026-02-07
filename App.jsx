@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation, useParams } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { templateAPI, testConnection } from './services/api.js';
 import { 
   Sparkles, 
@@ -41,8 +41,9 @@ import {
   Target,
   BarChart,
   ChevronRight,
-  FolderOpen,
-  FolderClosed
+  ChevronLeft,
+  Folder,
+  FolderOpen
 } from 'lucide-react';
 import './App.css';
 
@@ -60,6 +61,9 @@ function App() {
 
 // Main App Content
 function AppContent() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  
   // Enhanced Google Fonts with premium options
   useEffect(() => {
     const link = document.createElement('link');
@@ -102,22 +106,24 @@ function AppContent() {
   const [connectionStatus, setConnectionStatus] = useState('checking');
   const [expandedCategories, setExpandedCategories] = useState({});
   
-  const navigate = useNavigate();
-  const location = useLocation();
-  const params = useParams();
-
   // Fetch data on load
   useEffect(() => {
     fetchTemplates();
     checkAPIHealth();
   }, []);
 
-  // Handle browser back button
+  // Handle route changes
   useEffect(() => {
-    if (location.pathname !== '/' && !location.pathname.includes('/category/')) {
-      navigate('/');
+    const path = location.pathname;
+    if (path === '/') {
+      setSelectedCategory('All Categories');
+    } else if (path.startsWith('/category/')) {
+      const categoryName = decodeURIComponent(path.replace('/category/', ''));
+      if (categories.includes(categoryName)) {
+        setSelectedCategory(categoryName);
+      }
     }
-  }, [location, navigate]);
+  }, [location]);
 
   const fetchTemplates = async () => {
     try {
@@ -371,10 +377,10 @@ function AppContent() {
     return placeholderMap[variable] || `Enter ${variable.replace(/_/g, ' ')}`;
   };
 
-  // Get unique categories with grouping
+  // Get unique categories
   const categories = ['All Categories', ...new Set(templates.map(t => t.category))].filter(Boolean);
   
-  // Group categories for better organization
+  // Group categories
   const mainCategories = ['Health and Wellness', 'Image Generation', 'Business and Marketing', 'Creative Writing', 'Technology'];
   const otherCategories = categories.filter(cat => cat !== 'All Categories' && !mainCategories.includes(cat));
 
@@ -418,10 +424,10 @@ function AppContent() {
   };
 
   // Toggle category expansion
-  const toggleCategory = (category) => {
+  const toggleCategoryExpansion = () => {
     setExpandedCategories(prev => ({
       ...prev,
-      [category]: !prev[category]
+      otherCategories: !prev.otherCategories
     }));
   };
 
@@ -579,22 +585,21 @@ ${generatedPrompt.prompt}`;
     );
   };
 
-  // Render category list with collapsible sections
-  const renderCategoryList = () => (
-    <div className="category-list-container">
-      {/* Main Categories - Always visible */}
+  // Render sidebar categories
+  const renderSidebarCategories = () => (
+    <div className="sidebar-categories">
       <div className="category-section">
-        <div className="section-header">
-          <h4 className="section-title">Main Categories</h4>
-        </div>
+        <h4 className="category-section-title">Main Categories</h4>
         {mainCategories.map(category => (
           <button
             key={category}
-            className={`category-item ${selectedCategory === category ? 'active' : ''}`}
+            className={`sidebar-category-item ${selectedCategory === category ? 'active' : ''}`}
             onClick={() => handleCategorySelect(category)}
           >
-            {getCategoryIcon(category)}
-            <span className="category-name">{category}</span>
+            <div className="category-item-content">
+              {getCategoryIcon(category)}
+              <span className="category-name">{category}</span>
+            </div>
             <span className="category-count">
               {templates.filter(t => t.category === category).length}
             </span>
@@ -602,30 +607,34 @@ ${generatedPrompt.prompt}`;
         ))}
       </div>
 
-      {/* Other Categories - Collapsible */}
       {otherCategories.length > 0 && (
         <div className="category-section collapsible">
           <button
-            className="collapse-toggle"
-            onClick={() => toggleCategory('other')}
+            className="category-collapse-toggle"
+            onClick={toggleCategoryExpansion}
           >
-            <span className="section-title">More Categories</span>
+            <div className="toggle-content">
+              {expandedCategories.otherCategories ? <FolderOpen size={16} /> : <Folder size={16} />}
+              <span>More Categories</span>
+            </div>
             <ChevronRight 
-              size={18} 
-              className={`collapse-icon ${expandedCategories['other'] ? 'expanded' : ''}`}
+              size={16} 
+              className={`toggle-arrow ${expandedCategories.otherCategories ? 'expanded' : ''}`}
             />
           </button>
           
-          {expandedCategories['other'] && (
-            <div className="collapsible-content">
+          {expandedCategories.otherCategories && (
+            <div className="collapsed-categories">
               {otherCategories.map(category => (
                 <button
                   key={category}
-                  className={`category-item ${selectedCategory === category ? 'active' : ''}`}
+                  className={`sidebar-category-item subcategory ${selectedCategory === category ? 'active' : ''}`}
                   onClick={() => handleCategorySelect(category)}
                 >
-                  {getCategoryIcon(category)}
-                  <span className="category-name">{category}</span>
+                  <div className="category-item-content">
+                    {getCategoryIcon(category)}
+                    <span className="category-name">{category}</span>
+                  </div>
                   <span className="category-count">
                     {templates.filter(t => t.category === category).length}
                   </span>
@@ -636,13 +645,14 @@ ${generatedPrompt.prompt}`;
         </div>
       )}
 
-      {/* All Categories */}
       <button
-        className={`category-item all-categories ${selectedCategory === 'All Categories' ? 'active' : ''}`}
+        className={`sidebar-category-item all-categories ${selectedCategory === 'All Categories' ? 'active' : ''}`}
         onClick={() => handleCategorySelect('All Categories')}
       >
-        <Layers size={18} className="category-icon" />
-        <span className="category-name">All Categories</span>
+        <div className="category-item-content">
+          <Layers size={18} className="category-icon" />
+          <span className="category-name">All Categories</span>
+        </div>
         <span className="category-count">{templates.length}</span>
       </button>
     </div>
@@ -650,7 +660,7 @@ ${generatedPrompt.prompt}`;
 
   return (
     <div className="app">
-      {/* Header - REMOVED all AI branding */}
+      {/* Header */}
       <header className="header">
         <div className="header-content">
           <button 
@@ -704,10 +714,8 @@ ${generatedPrompt.prompt}`;
             </div>
           </div>
 
-          {/* Category Navigation */}
-          <div className="category-navigation">
-            {renderCategoryList()}
-          </div>
+          {/* Categories */}
+          {renderSidebarCategories()}
 
           {/* Search */}
           <div className="search-box">
@@ -734,44 +742,50 @@ ${generatedPrompt.prompt}`;
           {/* Templates List */}
           <div className="template-scroll">
             <div className={`template-container ${viewMode}`}>
-              {filteredTemplates.map(template => (
-                <div
-                  key={template.id}
-                  className={`template-card ${selectedTemplate === template.id ? 'selected' : ''} ${template.expert_level === 'Professional' ? 'premium' : ''}`}
-                  onClick={() => handleTemplateSelect(template.id)}
-                  role="button"
-                  tabIndex={0}
-                  onKeyPress={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      handleTemplateSelect(template.id);
-                    }
-                  }}
-                >
-                  <div className="template-icon">
-                    {getCategoryIcon(template.category)}
-                    {template.expert_level === 'Professional' && (
-                      <div className="premium-badge">
-                        <Crown size={12} />
-                      </div>
-                    )}
-                  </div>
-                  <div className="template-info">
-                    <h4>
-                      {template.name}
+              {filteredTemplates.length > 0 ? (
+                filteredTemplates.map(template => (
+                  <div
+                    key={template.id}
+                    className={`template-card ${selectedTemplate === template.id ? 'selected' : ''} ${template.expert_level === 'Professional' ? 'premium' : ''}`}
+                    onClick={() => handleTemplateSelect(template.id)}
+                    role="button"
+                    tabIndex={0}
+                    onKeyPress={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        handleTemplateSelect(template.id);
+                      }
+                    }}
+                  >
+                    <div className="template-icon">
+                      {getCategoryIcon(template.category)}
                       {template.expert_level === 'Professional' && (
-                        <span style={{ color: '#f59e0b', marginLeft: '6px' }}>
-                          <Diamond size={12} />
-                        </span>
+                        <div className="premium-badge">
+                          <Crown size={12} />
+                        </div>
                       )}
-                    </h4>
-                    <p className="template-desc">{template.description}</p>
-                    <div className="template-tags">
-                      <span className="tag category">{template.category}</span>
-                      <span className="tag subcategory">{template.subcategory}</span>
+                    </div>
+                    <div className="template-info">
+                      <h4>
+                        {template.name}
+                        {template.expert_level === 'Professional' && (
+                          <span style={{ color: '#f59e0b', marginLeft: '6px' }}>
+                            <Diamond size={12} />
+                          </span>
+                        )}
+                      </h4>
+                      <p className="template-desc">{template.description}</p>
+                      <div className="template-tags">
+                        <span className="tag category">{template.category}</span>
+                        <span className="tag subcategory">{template.subcategory}</span>
+                      </div>
                     </div>
                   </div>
+                ))
+              ) : (
+                <div className="no-templates">
+                  <p>No templates found{selectedCategory !== 'All Categories' ? ` in ${selectedCategory}` : ''}</p>
                 </div>
-              ))}
+              )}
             </div>
           </div>
 
@@ -800,12 +814,12 @@ ${generatedPrompt.prompt}`;
             <Route 
               path="/" 
               element={
-                <HomeContent 
+                <MainContent 
                   connectionStatus={connectionStatus}
                   testBackendConnection={testBackendConnection}
                   selectedCategory={selectedCategory}
                   categories={categories}
-                  setSelectedCategory={setSelectedCategory}
+                  setSelectedCategory={handleCategorySelect}
                   templates={templates}
                   filteredTemplates={filteredTemplates}
                   getCategoryIcon={getCategoryIcon}
@@ -829,18 +843,19 @@ ${generatedPrompt.prompt}`;
                   expandedSection={expandedSection}
                   setExpandedSection={setExpandedSection}
                   handleTemplateSelect={handleTemplateSelect}
+                  navigate={navigate}
                 />
               } 
             />
             <Route 
               path="/category/:categoryName" 
               element={
-                <CategoryContent 
+                <CategoryPage 
                   connectionStatus={connectionStatus}
                   testBackendConnection={testBackendConnection}
                   selectedCategory={selectedCategory}
                   categories={categories}
-                  setSelectedCategory={setSelectedCategory}
+                  setSelectedCategory={handleCategorySelect}
                   templates={templates}
                   filteredTemplates={filteredTemplates}
                   getCategoryIcon={getCategoryIcon}
@@ -901,8 +916,8 @@ ${generatedPrompt.prompt}`;
   );
 }
 
-// Home Component
-function HomeContent(props) {
+// Main Content Component
+function MainContent(props) {
   const {
     connectionStatus,
     testBackendConnection,
@@ -931,7 +946,8 @@ function HomeContent(props) {
     apiStatus,
     expandedSection,
     setExpandedSection,
-    handleTemplateSelect
+    handleTemplateSelect,
+    navigate
   } = props;
 
   return (
@@ -954,6 +970,15 @@ function HomeContent(props) {
         </div>
       )}
 
+      {/* Page Header */}
+      <div className="page-header">
+        <h2 className="page-title">
+          <Layers className="icon" />
+          All Templates
+          <span className="page-subtitle">{filteredTemplates.length} templates available</span>
+        </h2>
+      </div>
+
       {/* Collapsible Sections */}
       <div className="sections-container">
         {/* Templates Section */}
@@ -971,8 +996,8 @@ function HomeContent(props) {
           >
             <h3>
               <Layers className="icon" />
-              All Templates
-              <span className="count-badge">{filteredTemplates.length}</span>
+              Browse Templates by Category
+              <span className="count-badge">{categories.length - 1}</span>
             </h3>
             {expandedSection === 'templates' ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
           </div>
@@ -980,7 +1005,7 @@ function HomeContent(props) {
           {expandedSection === 'templates' && (
             <div className="section-content">
               <div className="category-grid">
-                {categories.map(category => (
+                {categories.filter(cat => cat !== 'All Categories').map(category => (
                   <button
                     key={category}
                     className={`category-chip ${selectedCategory === category ? 'active' : ''}`}
@@ -988,6 +1013,7 @@ function HomeContent(props) {
                   >
                     {getCategoryIcon(category)}
                     {category}
+                    <span className="chip-count">{templates.filter(t => t.category === category).length}</span>
                   </button>
                 ))}
               </div>
@@ -1008,7 +1034,7 @@ function HomeContent(props) {
                     <Target size={20} />
                   </div>
                   <div className="stat-info">
-                    <div className="stat-value">{categories.length}</div>
+                    <div className="stat-value">{categories.length - 1}</div>
                     <div className="stat-label">Categories</div>
                   </div>
                 </div>
@@ -1256,7 +1282,7 @@ function HomeContent(props) {
               <Target size={20} />
             </div>
             <div className="stat-info">
-              <div className="stat-value">{categories.length}</div>
+              <div className="stat-value">{categories.length - 1}</div>
               <div className="stat-label">Categories</div>
             </div>
           </div>
@@ -1276,8 +1302,8 @@ function HomeContent(props) {
   );
 }
 
-// Category Component
-function CategoryContent(props) {
+// Category Page Component
+function CategoryPage(props) {
   const {
     connectionStatus,
     testBackendConnection,
@@ -1310,34 +1336,28 @@ function CategoryContent(props) {
     navigate
   } = props;
 
-  // Get category name from URL
-  const { categoryName } = useParams();
-  const decodedCategoryName = decodeURIComponent(categoryName || '');
-
-  useEffect(() => {
-    if (decodedCategoryName && categories.includes(decodedCategoryName)) {
-      setSelectedCategory(decodedCategoryName);
-    }
-  }, [decodedCategoryName, categories, setSelectedCategory]);
-
   const handleBack = () => {
     navigate('/');
-    setSelectedCategory('All Categories');
   };
 
   return (
     <>
       {/* Category Header */}
-      <div className="category-header">
+      <div className="category-page-header">
         <button onClick={handleBack} className="back-button">
-          <ChevronRight size={20} className="back-icon" />
+          <ChevronLeft size={20} className="back-icon" />
           Back to All Templates
         </button>
-        <h2 className="category-title">
-          {getCategoryIcon(selectedCategory)}
-          {selectedCategory}
-          <span className="category-count">{filteredTemplates.length} templates</span>
-        </h2>
+        <div className="category-header-content">
+          <h2 className="category-title">
+            {getCategoryIcon(selectedCategory)}
+            {selectedCategory}
+            <span className="category-count-badge">{filteredTemplates.length} templates</span>
+          </h2>
+          <p className="category-description">
+            Browse and customize {selectedCategory.toLowerCase()} prompts
+          </p>
+        </div>
       </div>
 
       {/* Connection Status Banner */}
@@ -1383,24 +1403,20 @@ function CategoryContent(props) {
           
           {expandedSection === 'templates' && (
             <div className="section-content">
-              <div className="category-grid">
-                {categories.map(category => (
-                  <button
-                    key={category}
-                    className={`category-chip ${selectedCategory === category ? 'active' : ''}`}
-                    onClick={() => {
-                      setSelectedCategory(category);
-                      if (category === 'All Categories') {
-                        navigate('/');
-                      } else {
-                        navigate(`/category/${encodeURIComponent(category)}`);
-                      }
-                    }}
-                  >
-                    {getCategoryIcon(category)}
-                    {category}
-                  </button>
-                ))}
+              <div className="category-navigation">
+                <div className="category-nav-grid">
+                  {categories.filter(cat => cat !== 'All Categories').map(category => (
+                    <button
+                      key={category}
+                      className={`category-nav-item ${selectedCategory === category ? 'active' : ''}`}
+                      onClick={() => setSelectedCategory(category)}
+                    >
+                      {getCategoryIcon(category)}
+                      <span className="nav-category-name">{category}</span>
+                      <span className="nav-category-count">{templates.filter(t => t.category === category).length}</span>
+                    </button>
+                  ))}
+                </div>
               </div>
               
               {/* Category Statistics */}
@@ -1441,7 +1457,7 @@ function CategoryContent(props) {
           )}
         </div>
 
-        {/* Rest of the sections remain the same as HomeContent */}
+        {/* Rest of the sections remain the same */}
         {/* Customize Section */}
         <div className="section-card">
           <div 
